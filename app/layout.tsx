@@ -7,7 +7,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Miora",
-  description: "Miora design system",
+  description: "Miora aligns agents with project knowledge while you keep building.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

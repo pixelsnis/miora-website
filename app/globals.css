@@ -54,4 +54,13 @@
   body {
     margin: 0;
   }
+
+  button,
+  input {
+    font: inherit;
+  }
+}
+
+@media (max-width: 639px) {
+  .hero-art .knowledge-card { scale: 0.86; }
 }
