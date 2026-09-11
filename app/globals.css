@@ -22,6 +22,8 @@
   --font-sans: "Aileron", sans-serif;
   --font-mono: "Geist Mono", monospace;
 
+  --ease-ui: cubic-bezier(0.23, 1, 0.32, 1);
+
   --text-base: 0.875rem;
   --text-base--line-height: 1.55;
   --text-h1: 2rem;

@@ -1,5 +1,9 @@
+"use client";
+
+import { useRef } from "react";
 import Image from "next/image";
 import { ConnectivityTenancy, FileText, Terminal } from "griddy-icons";
+import { useInView } from "motion/react";
 import { OneCommandWidget } from "./one-command-widget";
 import { ViewThatFits } from "./view-that-fits";
 
@@ -36,6 +40,45 @@ const featureCards: FeatureCard[] = [
   },
 ];
 
+function FeatureCardItem({ card }: { card: FeatureCard }) {
+  const Icon = card.icon;
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(mediaRef, { amount: "all", once: true });
+  const play = card.widget === "one-command" && inView;
+
+  return (
+    <article className="flex min-w-0 flex-col gap-4">
+      <div
+        ref={mediaRef}
+        className="relative aspect-[1104/810] w-full select-none overflow-hidden"
+      >
+        <Image
+          src={card.image}
+          alt=""
+          fill
+          draggable={false}
+          sizes="(min-width: 1280px) 368px, (min-width: 768px) calc((100vw - 96px) / 3), calc(100vw - 32px)"
+          className="object-cover"
+        />
+        {card.widget === "one-command" ? (
+          <ViewThatFits className="absolute inset-0" maxWidthFraction={0.7}>
+            <OneCommandWidget play={play} />
+          </ViewThatFits>
+        ) : null}
+      </div>
+      <div className="flex flex-col items-start gap-2.5">
+        <Icon size={24} className="size-6 text-ink" aria-hidden="true" />
+        <h3 className="text-[14px] font-semibold leading-[normal] tracking-[-0.35px] text-ink">
+          {card.title}
+        </h3>
+        <p className="text-[12px] leading-[1.5] text-text-secondary">
+          {card.description}
+        </p>
+      </div>
+    </article>
+  );
+}
+
 export function FeatureCards() {
   return (
     <section
@@ -56,41 +99,9 @@ export function FeatureCards() {
       </div>
 
       <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-3 md:gap-4">
-        {featureCards.map((card) => {
-          const Icon = card.icon;
-
-          return (
-            <article key={card.title} className="flex min-w-0 flex-col gap-4">
-              <div className="relative aspect-[1104/810] w-full select-none overflow-hidden">
-                <Image
-                  src={card.image}
-                  alt=""
-                  fill
-                  draggable={false}
-                  sizes="(min-width: 1280px) 368px, (min-width: 768px) calc((100vw - 96px) / 3), calc(100vw - 32px)"
-                  className="object-cover"
-                />
-                {card.widget === "one-command" ? (
-                  <ViewThatFits
-                    className="absolute inset-0"
-                    maxWidthFraction={0.7}
-                  >
-                    <OneCommandWidget />
-                  </ViewThatFits>
-                ) : null}
-              </div>
-              <div className="flex flex-col items-start gap-2.5">
-                <Icon size={24} className="size-6 text-ink" aria-hidden="true" />
-                <h3 className="text-[14px] font-semibold leading-[normal] tracking-[-0.35px] text-ink">
-                  {card.title}
-                </h3>
-                <p className="text-[12px] leading-[1.5] text-text-secondary">
-                  {card.description}
-                </p>
-              </div>
-            </article>
-          );
-        })}
+        {featureCards.map((card) => (
+          <FeatureCardItem key={card.title} card={card} />
+        ))}
       </div>
     </section>
   );
