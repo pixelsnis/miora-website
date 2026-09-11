@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, type RefObject } from "react";
-import { Folder } from "griddy-icons";
+import { useEffect, useRef, useState, type RefObject } from "react";
+import { Check, Folder } from "griddy-icons";
 import { animate } from "motion";
 import { useAnimationFrame, useReducedMotion } from "motion/react";
 
@@ -45,6 +45,25 @@ type Pulse = {
 };
 
 const TRAVEL_DURATION = 1.5;
+const EASE_OUT = [0.23, 1, 0.32, 1] as const;
+const HOLD_MS = 2000;
+const SHIMMER_MS = 1800;
+const PUSH_MS = 280;
+
+const idleFace = {
+  id: "idle",
+  kind: "folder",
+  label: "knowledge/",
+} as const;
+
+const statusFaces = [
+  { id: "conflicts", kind: "check", label: "Conflicts resolved" },
+  { id: "refs", kind: "check", label: "Stale refs updated" },
+  { id: "duplicate", kind: "check", label: "Duplicate merged" },
+  { id: "drift", kind: "check", label: "Drift reconciled" },
+] as const;
+
+type Face = typeof idleFace | (typeof statusFaces)[number];
 
 function randomBetween(min: number, max: number) {
   return min + Math.random() * (max - min);
@@ -72,6 +91,168 @@ function driftOffset(time: number, spec: (typeof agents)[number]["drift"]) {
     x: Math.sin(time * spec.speed + spec.phase) * spec.amp,
     y: Math.cos(time * spec.speed * 0.82 + spec.phase * 1.25) * spec.amp,
   };
+}
+
+function FaceContent({ face }: { face: Face }) {
+  const resolved = face.kind === "check";
+  const Icon = resolved ? Check : Folder;
+
+  return (
+    <>
+      <Icon
+        size={21}
+        className={`size-[21px] shrink-0 ${resolved ? "text-moss" : "text-text-muted"}`}
+        aria-hidden="true"
+      />
+      <span className={`truncate ${resolved ? "text-moss" : ""}`}>{face.label}</span>
+    </>
+  );
+}
+
+function KnowledgeFolderRow({ play }: { play: boolean }) {
+  const shouldReduceMotion = useReducedMotion();
+  const [statusIndex, setStatusIndex] = useState(0);
+  const idleRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  const wipeRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const idleEl = idleRef.current;
+    const statusEl = statusRef.current;
+    const wipeEl = wipeRef.current;
+
+    const resetLayers = () => {
+      if (idleEl) {
+        idleEl.style.transform = "translateY(0%)";
+      }
+      if (statusEl) {
+        statusEl.style.transform = "translateY(100%)";
+      }
+      if (wipeEl) {
+        wipeEl.style.transform = "translateX(-130%)";
+        wipeEl.style.opacity = "0";
+      }
+    };
+
+    resetLayers();
+
+    if (shouldReduceMotion || !play) {
+      return;
+    }
+
+    const abort = new AbortController();
+    const { signal } = abort;
+    const running: ReturnType<typeof animate>[] = [];
+    let nextStatus = 0;
+
+    const shimmer = async () => {
+      if (!wipeEl) {
+        await sleep(SHIMMER_MS, signal);
+        return;
+      }
+
+      wipeEl.style.transform = "translateX(-130%)";
+      wipeEl.style.opacity = "1";
+      const wipe = animate(
+        wipeEl,
+        { transform: ["translateX(-130%)", "translateX(210%)"] },
+        { duration: SHIMMER_MS / 1000, ease: "linear" },
+      );
+      running.push(wipe);
+      await sleep(SHIMMER_MS, signal);
+      wipeEl.style.opacity = "0";
+      wipeEl.style.transform = "translateX(-130%)";
+    };
+
+    const pushSwap = async (
+      outgoing: HTMLDivElement,
+      incoming: HTMLDivElement,
+    ) => {
+      outgoing.style.transform = "translateY(0%)";
+      incoming.style.transform = "translateY(100%)";
+      const outAnim = animate(
+        outgoing,
+        { transform: ["translateY(0%)", "translateY(-100%)"] },
+        { duration: PUSH_MS / 1000, ease: EASE_OUT },
+      );
+      const inAnim = animate(
+        incoming,
+        { transform: ["translateY(100%)", "translateY(0%)"] },
+        { duration: PUSH_MS / 1000, ease: EASE_OUT },
+      );
+      running.push(outAnim, inAnim);
+      await sleep(PUSH_MS, signal);
+      outgoing.style.transform = "translateY(-100%)";
+      incoming.style.transform = "translateY(0%)";
+    };
+
+    const loop = async () => {
+      await sleep(HOLD_MS, signal);
+      while (!signal.aborted) {
+        await shimmer();
+        if (idleEl && statusEl) {
+          await pushSwap(idleEl, statusEl);
+        }
+        await sleep(HOLD_MS, signal);
+        if (idleEl && statusEl) {
+          await pushSwap(statusEl, idleEl);
+          statusEl.style.transform = "translateY(100%)";
+        }
+        nextStatus = (nextStatus + 1) % statusFaces.length;
+        setStatusIndex(nextStatus);
+        await sleep(HOLD_MS, signal);
+      }
+    };
+
+    loop().catch((error: unknown) => {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return;
+      }
+
+      throw error;
+    });
+
+    return () => {
+      abort.abort();
+      for (const control of running) {
+        control.stop();
+      }
+      resetLayers();
+    };
+  }, [play, shouldReduceMotion]);
+
+  const status = statusFaces[statusIndex] ?? statusFaces[0];
+
+  return (
+    <div className="absolute left-1/2 top-1/2 z-20 w-[190pt] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[10px] bg-background font-mono text-[14px] text-ink shadow-[0_24px_24px_rgba(0,0,0,.25),0_55px_33px_rgba(0,0,0,.15),0_98px_39px_rgba(0,0,0,.04)]">
+      <div className="relative overflow-hidden">
+        <div
+          ref={idleRef}
+          className="flex items-center gap-2 bg-background px-4 py-3.5"
+        >
+          <FaceContent face={idleFace} />
+        </div>
+        <div
+          ref={statusRef}
+          className="absolute inset-0 flex items-center gap-2 bg-background px-4 py-3.5"
+          style={{ transform: "translateY(100%)" }}
+          aria-hidden="true"
+        >
+          <FaceContent face={status} />
+        </div>
+        <div
+          ref={wipeRef}
+          className="pointer-events-none absolute inset-y-0 left-0 w-[42%] opacity-0"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--color-moss) 38%, transparent) 50%, transparent 100%)",
+            transform: "translateX(-130%)",
+          }}
+          aria-hidden="true"
+        />
+      </div>
+    </div>
+  );
 }
 
 function AgentBadge({
@@ -280,10 +461,7 @@ export function AnyAgentWidget({ play }: { play: boolean }) {
         />
       ))}
 
-      <div className="absolute left-1/2 top-1/2 z-20 flex w-[190pt] -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-[10px] bg-background px-4 py-3.5 font-mono text-[14px] text-ink shadow-[0_24px_24px_rgba(0,0,0,.25),0_55px_33px_rgba(0,0,0,.15),0_98px_39px_rgba(0,0,0,.04)]">
-        <Folder size={21} className="size-[21px] shrink-0 text-text-muted" aria-hidden="true" />
-        <span>knowledge/</span>
-      </div>
+      <KnowledgeFolderRow play={play} />
 
       {agents.map((agent) => (
         <AgentBadge
