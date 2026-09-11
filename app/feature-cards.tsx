@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import { ConnectivityTenancy, FileText, Terminal } from "griddy-icons";
 import { useInView } from "motion/react";
+import { AnyAgentWidget } from "./any-agent-widget";
 import { OneCommandWidget } from "./one-command-widget";
 import { ViewThatFits } from "./view-that-fits";
 
@@ -12,7 +13,7 @@ type FeatureCard = {
   icon: typeof Terminal;
   title: string;
   description: string;
-  widget?: "one-command";
+  widget?: "one-command" | "any-agent";
 };
 
 const featureCards: FeatureCard[] = [
@@ -28,6 +29,7 @@ const featureCards: FeatureCard[] = [
     image: "/images/landing/feature-cards/card-03.webp",
     icon: ConnectivityTenancy,
     title: "Any agent.",
+    widget: "any-agent",
     description:
       "Miora works with every agent on your computer. No MCP, no connector, just a single CLI tool.",
   },
@@ -44,7 +46,7 @@ function FeatureCardItem({ card }: { card: FeatureCard }) {
   const Icon = card.icon;
   const mediaRef = useRef<HTMLDivElement>(null);
   const inView = useInView(mediaRef, { amount: "all", once: true });
-  const play = card.widget === "one-command" && inView;
+  const play = Boolean(card.widget) && inView;
 
   return (
     <article className="flex min-w-0 flex-col gap-4">
@@ -63,6 +65,11 @@ function FeatureCardItem({ card }: { card: FeatureCard }) {
         {card.widget === "one-command" ? (
           <ViewThatFits className="absolute inset-0" maxWidthFraction={0.7}>
             <OneCommandWidget play={play} />
+          </ViewThatFits>
+        ) : null}
+        {card.widget === "any-agent" ? (
+          <ViewThatFits className="absolute inset-0" maxWidthFraction={0.7}>
+            <AnyAgentWidget play={play} />
           </ViewThatFits>
         ) : null}
       </div>
