@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ConnectivityTenancy, FileText, Terminal } from "griddy-icons";
 import { useInView } from "motion/react";
 import { AnyAgentWidget } from "./any-agent-widget";
+import { MarkdownWidget } from "./markdown-widget";
 import { OneCommandWidget } from "./one-command-widget";
 import { ViewThatFits } from "./view-that-fits";
 
@@ -13,7 +14,7 @@ type FeatureCard = {
   icon: typeof Terminal;
   title: string;
   description: string;
-  widget?: "one-command" | "any-agent";
+  widget?: "one-command" | "any-agent" | "markdown";
 };
 
 const featureCards: FeatureCard[] = [
@@ -37,6 +38,7 @@ const featureCards: FeatureCard[] = [
     image: "/images/landing/feature-cards/card-02.webp",
     icon: FileText,
     title: "It’s all markdown.",
+    widget: "markdown",
     description:
       "The secret sauce is just a folder with markdown. No proprietary knowledge format to be trapped inside.",
   },
@@ -70,6 +72,11 @@ function FeatureCardItem({ card }: { card: FeatureCard }) {
         {card.widget === "any-agent" ? (
           <ViewThatFits className="absolute inset-0" maxWidthFraction={0.7}>
             <AnyAgentWidget play={play} />
+          </ViewThatFits>
+        ) : null}
+        {card.widget === "markdown" ? (
+          <ViewThatFits className="absolute inset-0" maxWidthFraction={0.7}>
+            <MarkdownWidget play={play} />
           </ViewThatFits>
         ) : null}
       </div>
