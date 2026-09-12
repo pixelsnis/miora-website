@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { Check } from "lucide-react"
 import {
   Field,
   FieldDescription,
@@ -28,7 +27,6 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { cn } from "@/lib/utils"
 
 const agents = [
@@ -152,14 +150,12 @@ type SurveyState = {
   email: string
   agentsUsed: string[]
   workLocation: number
-  workLocationTouched: boolean
   workflowPrimary: Workflow | null
   workflowSecondary: Workflow | null
   knowledgeLocations: string[]
   knowledgeOrganization: string[]
   preservedKnowledge: string[]
-  ownershipBoundaries: [number, number]
-  ownershipTouched: boolean
+  teamMaintainedPercent: number
   knowledgeMaintenance: Maintenance | null
   sixMonthSourceOfTruth: string
 }
@@ -169,11 +165,8 @@ type Errors = Partial<Record<"name" | "email" | "workLocation" | "workflow" | "o
 const errorKeyByState: Partial<Record<keyof SurveyState, keyof Errors>> = {
   name: "name",
   email: "email",
-  workLocation: "workLocation",
-  workLocationTouched: "workLocation",
   workflowPrimary: "workflow",
-  ownershipBoundaries: "ownership",
-  ownershipTouched: "ownership",
+  teamMaintainedPercent: "ownership",
   knowledgeMaintenance: "maintenance",
 }
 
@@ -182,14 +175,12 @@ const initialState = (email: string): SurveyState => ({
   email,
   agentsUsed: [],
   workLocation: 0.5,
-  workLocationTouched: false,
   workflowPrimary: null,
   workflowSecondary: null,
   knowledgeLocations: [],
   knowledgeOrganization: [],
   preservedKnowledge: [],
-  ownershipBoundaries: [34, 67],
-  ownershipTouched: false,
+  teamMaintainedPercent: 50,
   knowledgeMaintenance: null,
   sixMonthSourceOfTruth: "",
 })
@@ -261,7 +252,6 @@ function QuestionHeading({
 export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
   const [state, setState] = React.useState(() => initialState(initialEmail))
   const [errors, setErrors] = React.useState<Errors>({})
-  const [submitted, setSubmitted] = React.useState(false)
   const [preservedNotice, setPreservedNotice] = React.useState(false)
 
   const update = <K extends keyof SurveyState>(key: K, value: SurveyState[K]) => {
@@ -275,56 +265,14 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
         return next
       })
     }
-    setSubmitted(false)
-  }
-
-  const validate = () => {
-    const nextErrors: Errors = {}
-    if (!state.name.trim()) nextErrors.name = "Please add your name."
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim())) nextErrors.email = "Enter a valid email address."
-    if (!state.workLocationTouched) nextErrors.workLocation = "Move the slider to confirm your answer."
-    if (!state.workflowPrimary) nextErrors.workflow = "Choose your closest workflow."
-    const [human, shared] = state.ownershipBoundaries
-    if (!state.ownershipTouched || human < 0 || shared < human || shared > 100) {
-      nextErrors.ownership = "Set the ownership split to confirm your answer."
-    }
-    if (!state.knowledgeMaintenance) nextErrors.maintenance = "Choose what usually happens over time."
-    return nextErrors
-  }
-
-  const focusFirstError = (nextErrors: Errors) => {
-    const ids: Array<[keyof Errors, string]> = [
-      ["name", "survey-name"],
-      ["email", "survey-email"],
-      ["workLocation", "survey-work-location"],
-      ["workflow", "survey-workflow"],
-      ["ownership", "survey-ownership"],
-      ["maintenance", "survey-maintenance"],
-    ]
-    const target = ids.find(([key]) => nextErrors[key])
-    if (!target) return
-    const element = document.getElementById(target[1])
-    if (!element) return
-    element.scrollIntoView({ behavior: "smooth", block: "center" })
-    const focusable = element.matches("input, textarea, button, [tabindex]") ? element : element.querySelector("input, textarea, button, [tabindex]")
-    ;(focusable as HTMLElement | null)?.focus()
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const nextErrors = validate()
-    setErrors(nextErrors)
-    if (Object.keys(nextErrors).length) {
-      setSubmitted(false)
-      focusFirstError(nextErrors)
-      return
-    }
-    setSubmitted(true)
   }
 
-  const [human, sharedBoundary] = state.ownershipBoundaries
-  const shared = sharedBoundary - human
-  const agent = 100 - sharedBoundary
+  const teamMaintained = state.teamMaintainedPercent
+  const agentMaintained = 100 - teamMaintained
   const secondaryWorkflowItems = [
     { label: "No secondary workflow", value: null },
     ...workflows
@@ -453,7 +401,6 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
                 onValueChange={(value) => {
                   const next = Array.isArray(value) ? Number(value[0]) : Number(value)
                   update("workLocation", next)
-                  update("workLocationTouched", true)
                 }}
                 className="survey-large-slider"
               />
@@ -478,7 +425,6 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
                       }
                       onClick={() => {
                         update("workLocation", stop.value)
-                        update("workLocationTouched", true)
                       }}
                     >
                       {stop.label}
@@ -712,7 +658,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
             <QuestionHeading
               number="07"
               title="Who maintains that knowledge?"
-              description="Set the balance between your team, shared work, and agents. The three percentages always total 100."
+              description="Set the split between your team and agents. The two percentages always total 100."
             />
             <FieldSet
               id="survey-ownership"
@@ -723,49 +669,33 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
                 Knowledge ownership split
               </FieldLegend>
               <div className="survey-ownership-bar" aria-hidden="true">
-                <span style={{ width: `${human}%` }} />
-                <span style={{ width: `${shared}%` }} />
-                <span style={{ width: `${agent}%` }} />
+                <span style={{ width: `${teamMaintained}%` }} />
+                <span style={{ width: `${agentMaintained}%` }} />
               </div>
-              <div className="grid grid-cols-3 gap-3 text-center text-xs">
+              <div className="grid grid-cols-2 gap-3 text-center text-xs">
                 <div>
                   <strong className="block font-mono text-sm tabular-nums text-ink">
-                    {human}%
+                    {teamMaintained}%
                   </strong>
                   <span className="text-text-muted">Me / my team</span>
                 </div>
                 <div>
                   <strong className="block font-mono text-sm tabular-nums text-ink">
-                    {shared}%
-                  </strong>
-                  <span className="text-text-muted">Both</span>
-                </div>
-                <div>
-                  <strong className="block font-mono text-sm tabular-nums text-ink">
-                    {agent}%
+                    {agentMaintained}%
                   </strong>
                   <span className="text-text-muted">Agents</span>
                 </div>
               </div>
               <Slider
-                aria-label="Knowledge ownership split"
-                getAriaLabel={(index) =>
-                  index === 0
-                    ? "Boundary between team and shared work"
-                    : "Boundary between shared work and agents"
-                }
-                getAriaValueText={(_, value) => `${value} percent`}
+                aria-label="Knowledge maintenance split between team and agents"
+                getAriaValueText={(_, value) => `${value} percent maintained by your team`}
                 min={0}
                 max={100}
                 step={1}
-                value={state.ownershipBoundaries}
+                value={state.teamMaintainedPercent}
                 onValueChange={(value) => {
-                  const next = Array.isArray(value) ? value : [value, value]
-                  update("ownershipBoundaries", [Number(next[0]), Number(next[1])] as [
-                    number,
-                    number,
-                  ])
-                  update("ownershipTouched", true)
+                  const next = Array.isArray(value) ? Number(value[0]) : Number(value)
+                  update("teamMaintainedPercent", next)
                 }}
                 className="survey-large-slider mt-4"
               />
@@ -823,17 +753,8 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
           </section>
 
           <div className="flex flex-col gap-4 border-t border-line pt-8">
-            {submitted ? (
-              <Alert>
-                <Check />
-                <AlertTitle>Answers ready</AlertTitle>
-                <AlertDescription>
-                  Your answers passed local validation. They have not been sent or saved.
-                </AlertDescription>
-              </Alert>
-            ) : null}
             <Button type="submit" className="h-[44px]">
-              Review answers
+              Submit
             </Button>
           </div>
         </form>

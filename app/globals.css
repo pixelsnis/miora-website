@@ -297,11 +297,7 @@
 }
 
 .survey-ownership-bar span:nth-child(2) {
-  background: color-mix(in srgb, var(--color-ink) 55%, var(--color-background));
-}
-
-.survey-ownership-bar span:nth-child(3) {
-  background: color-mix(in srgb, var(--color-ink) 25%, var(--color-background));
+  background: color-mix(in srgb, var(--color-ink) 35%, var(--color-background));
 }
 
 @media (max-width: 640px) {
