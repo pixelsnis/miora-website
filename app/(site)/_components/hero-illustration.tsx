@@ -325,6 +325,7 @@ export function HeroIllustration() {
   const inView = useInView(rootRef, { amount: 0.4 });
   const shouldReduceMotion = useReducedMotion();
   const documentVisible = useDocumentVisible();
+  const [imageLoaded, setImageLoaded] = useState(false);
   const play = Boolean(inView && documentVisible && !shouldReduceMotion);
 
   const agentsRow = useRef<HeroRowHandle>(null);
@@ -525,15 +526,19 @@ export function HeroIllustration() {
   return (
     <CursorFollow
       ref={rootRef}
-      className="hero-art relative h-[clamp(15rem,38vh,29.6875rem)] min-h-0 w-full shrink select-none overflow-hidden bg-surface-dark"
+      className="hero-art relative h-[clamp(15rem,50vh,29.6875rem)] min-h-0 w-full shrink select-none overflow-hidden bg-moss"
       aria-label="Several AI agents coordinate updates to a shared project knowledge folder"
     >
-      <div className="absolute -inset-3">
+      <div
+        className="hero-image-reveal absolute -inset-3"
+        data-loaded={imageLoaded}
+      >
         <Image
           src="/images/landing/hero.webp"
           alt=""
           fill
           priority
+          onLoad={() => setImageLoaded(true)}
           draggable={false}
           sizes="(max-width: 1280px) 100vw, 1136px"
           className="material-drift object-cover"
