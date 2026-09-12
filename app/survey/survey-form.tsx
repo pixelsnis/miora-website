@@ -14,22 +14,12 @@ import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Slider } from "@/components/ui/slider"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { submitSurvey } from "@/app/actions"
-import { validateSurvey, type SurveyErrors } from "@/lib/survey"
+import { emptySurveySubmission, validateSurvey, type SurveyErrors, type SurveySubmissionInput } from "@/lib/survey"
 import { LoaderCircle } from "lucide-react"
 
 const agents = [
@@ -55,7 +45,7 @@ const workLocationStops = [
 const workflows = [
   {
     value: "One continuous agent",
-    description: "One primary conversation or session that accumulates context.",
+    description: "One conversation or session that accumulates context.",
     diagram: "You ↔ Agent\n      ↓\n   Project",
   },
   {
@@ -145,23 +135,9 @@ const maintenanceOptions = [
   "I don't really maintain it",
 ] as const
 
-type Workflow = (typeof workflows)[number]["value"]
 type Maintenance = (typeof maintenanceOptions)[number]
 
-type SurveyState = {
-  name: string
-  email: string
-  agentsUsed: string[]
-  workLocation: number
-  workflowPrimary: Workflow | null
-  workflowSecondary: Workflow | null
-  knowledgeLocations: string[]
-  knowledgeOrganization: string[]
-  preservedKnowledge: string[]
-  teamMaintainedPercent: number
-  knowledgeMaintenance: Maintenance | null
-  sixMonthSourceOfTruth: string
-}
+type SurveyState = SurveySubmissionInput
 
 type Errors = SurveyErrors
 
@@ -169,7 +145,7 @@ const errorKeyByState: Partial<Record<keyof SurveyState, keyof Errors>> = {
   name: "name",
   email: "email",
   agentsUsed: "agentsUsed",
-  workflowPrimary: "workflow",
+  workflow: "workflow",
   knowledgeLocations: "knowledgeLocations",
   knowledgeOrganization: "knowledgeOrganization",
   preservedKnowledge: "preservedKnowledge",
@@ -178,22 +154,10 @@ const errorKeyByState: Partial<Record<keyof SurveyState, keyof Errors>> = {
   sixMonthSourceOfTruth: "sourceOfTruth",
 }
 
-const initialState = (email: string): SurveyState => ({
-  name: "",
-  email,
-  agentsUsed: [],
-  workLocation: 0.5,
-  workflowPrimary: null,
-  workflowSecondary: null,
-  knowledgeLocations: [],
-  knowledgeOrganization: [],
-  preservedKnowledge: [],
-  teamMaintainedPercent: 50,
-  knowledgeMaintenance: null,
-  sixMonthSourceOfTruth: "",
-})
+const initialState = (email: string, initialSurvey?: SurveySubmissionInput): SurveyState =>
+  initialSurvey ?? emptySurveySubmission(email)
 
-function toggleInList(list: string[], value: string, checked: boolean) {
+function toggleInList<T extends string>(list: T[], value: T, checked: boolean): T[] {
   return checked ? [...new Set([...list, value])] : list.filter((item) => item !== value)
 }
 
@@ -277,9 +241,19 @@ function QuestionHeading({
   )
 }
 
-export default function SurveyForm({ initialEmail, fromLanding = false }: { initialEmail: string; fromLanding?: boolean }) {
-  const [state, setState] = React.useState(() => initialState(initialEmail))
+export default function SurveyForm({
+  initialEmail,
+  initialSurvey,
+  fromLanding = false,
+}: {
+  initialEmail: string
+  initialSurvey?: SurveySubmissionInput
+  fromLanding?: boolean
+}) {
+  const [state, setState] = React.useState(() => initialState(initialEmail, initialSurvey))
   const [errors, setErrors] = React.useState<Errors>({})
+  const [workflowNotice, setWorkflowNotice] = React.useState(false)
+  const [organizationNotice, setOrganizationNotice] = React.useState(false)
   const [preservedNotice, setPreservedNotice] = React.useState(false)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [submitted, setSubmitted] = React.useState(false)
@@ -315,12 +289,6 @@ export default function SurveyForm({ initialEmail, fromLanding = false }: { init
 
   const teamMaintained = state.teamMaintainedPercent
   const agentMaintained = 100 - teamMaintained
-  const secondaryWorkflowItems = [
-    { label: "No secondary workflow", value: null },
-    ...workflows
-      .filter((item) => item.value !== state.workflowPrimary)
-      .map((item) => ({ label: item.value, value: item.value })),
-  ]
 
   const chipClassName =
     "h-auto min-h-8 rounded-none px-3 py-1.5 text-sm font-normal data-pressed:border-ink data-pressed:bg-surface-1 data-pressed:text-ink"
@@ -511,68 +479,61 @@ export default function SurveyForm({ initialEmail, fromLanding = false }: { init
             <QuestionHeading
               number="03"
               title="How do you usually work with agents on a project?"
-              description="Choose the closest match. You can add one secondary workflow if you use more than one."
+              description="Select all the workflows that sound like your project. Pick up to 3."
             />
             <FieldSet id="survey-workflow" data-invalid={Boolean(errors.workflow)}>
-              <FieldLegend variant="label" className="sr-only">
-                Primary workflow
+              <FieldLegend variant="label" className="sr-only" id="survey-workflow-legend">
+                Workflows
               </FieldLegend>
-              <RadioGroup
-                value={state.workflowPrimary}
-                onValueChange={(value) => {
-                  update("workflowPrimary", value as Workflow)
-                  if (state.workflowSecondary === value) update("workflowSecondary", null)
-                }}
-                className="survey-choice-grid"
+              <div
+                role="group"
+                aria-labelledby="survey-workflow-legend"
+                className="survey-choice-grid w-full"
               >
-                {workflows.map((item, index) => (
-                  <FieldLabel
-                    key={item.value}
-                    className={cn(
-                      "survey-choice-card w-full",
-                      state.workflowPrimary === item.value && "is-selected"
-                    )}
-                  >
-                    <ChoiceCardBody
-                      mark={
-                        <RadioGroupItem value={item.value} aria-label={item.value} />
-                      }
-                      title={`${String.fromCharCode(65 + index)}. ${item.value}`}
-                      description={item.description}
-                      diagram={item.diagram}
-                    />
-                  </FieldLabel>
-                ))}
-              </RadioGroup>
+                {workflows.map((item, index) => {
+                  const checked = state.workflow.includes(item.value)
+                  return (
+                    <FieldLabel
+                      key={item.value}
+                      className={cn(
+                        "survey-choice-card w-full",
+                        checked && "is-selected"
+                      )}
+                    >
+                      <ChoiceCardBody
+                        mark={
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(next) => {
+                              const nextChecked = Boolean(next)
+                              if (nextChecked && !checked && state.workflow.length >= 3) {
+                                setWorkflowNotice(true)
+                                return
+                              }
+                              update(
+                                "workflow",
+                                toggleInList(state.workflow, item.value, nextChecked)
+                              )
+                              setWorkflowNotice(false)
+                            }}
+                            aria-label={item.value}
+                          />
+                        }
+                        title={`${String.fromCharCode(65 + index)}. ${item.value}`}
+                        description={item.description}
+                        diagram={item.diagram}
+                      />
+                    </FieldLabel>
+                  )
+                })}
+              </div>
+              <div className="flex items-center justify-between gap-4 font-mono text-[11px] tabular-nums text-text-muted">
+                <span>{state.workflow.length} of 3 selected</span>
+                {workflowNotice ? (
+                  <span className="text-destructive">You can select up to three.</span>
+                ) : null}
+              </div>
               <FieldError>{errors.workflow}</FieldError>
-              <Field className="max-w-md">
-                <FieldLabel htmlFor="survey-secondary">Optional secondary workflow</FieldLabel>
-                <Select
-                  items={secondaryWorkflowItems}
-                  value={state.workflowSecondary}
-                  onValueChange={(value) => update("workflowSecondary", value as Workflow | null)}
-                >
-                  <SelectTrigger
-                    id="survey-secondary"
-                    className="w-full"
-                    aria-label="Optional secondary workflow"
-                  >
-                    <SelectValue>
-                      {(value: Workflow | null) => value ?? "I also use…"}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Other workflows</SelectLabel>
-                      {secondaryWorkflowItems.map((item) => (
-                        <SelectItem key={item.value ?? "none"} value={item.value}>
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </Field>
             </FieldSet>
           </section>
 
@@ -644,16 +605,26 @@ export default function SurveyForm({ initialEmail, fromLanding = false }: { init
                         mark={
                           <Checkbox
                             checked={checked}
-                            onCheckedChange={(next) =>
+                            onCheckedChange={(next) => {
+                              const nextChecked = Boolean(next)
+                              if (
+                                nextChecked &&
+                                !checked &&
+                                state.knowledgeOrganization.length >= 3
+                              ) {
+                                setOrganizationNotice(true)
+                                return
+                              }
                               update(
                                 "knowledgeOrganization",
                                 toggleInList(
                                   state.knowledgeOrganization,
                                   item.value,
-                                  Boolean(next)
+                                  nextChecked
                                 )
                               )
-                            }
+                              setOrganizationNotice(false)
+                            }}
                             aria-label={item.value}
                           />
                         }
@@ -663,6 +634,12 @@ export default function SurveyForm({ initialEmail, fromLanding = false }: { init
                     </FieldLabel>
                   )
                 })}
+              </div>
+              <div className="flex items-center justify-between gap-4 font-mono text-[11px] tabular-nums text-text-muted">
+                <span>{state.knowledgeOrganization.length} of 3 selected</span>
+                {organizationNotice ? (
+                  <span className="text-destructive">You can select up to three.</span>
+                ) : null}
               </div>
               <FieldError>{errors.knowledgeOrganization}</FieldError>
             </FieldSet>

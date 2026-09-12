@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { loadSurveyFromResumeToken } from "@/app/actions"
 import SurveyForm from "./survey-form"
 
 export const metadata: Metadata = {
@@ -7,13 +8,20 @@ export const metadata: Metadata = {
 }
 
 type SurveyPageProps = {
-  searchParams: Promise<{ email?: string | string[]; source?: string | string[] }>
+  searchParams: Promise<{ resume?: string | string[]; source?: string | string[] }>
 }
 
 export default async function SurveyPage({ searchParams }: SurveyPageProps) {
   const params = await searchParams
-  const email = Array.isArray(params.email) ? params.email[0] : params.email
+  const resume = Array.isArray(params.resume) ? params.resume[0] : params.resume
   const source = Array.isArray(params.source) ? params.source[0] : params.source
+  const initialSurvey = resume ? await loadSurveyFromResumeToken(resume) : null
 
-  return <SurveyForm initialEmail={email ?? ""} fromLanding={source === "landing"} />
+  return (
+    <SurveyForm
+      initialEmail={initialSurvey?.email ?? ""}
+      initialSurvey={initialSurvey ?? undefined}
+      fromLanding={source === "landing"}
+    />
+  )
 }

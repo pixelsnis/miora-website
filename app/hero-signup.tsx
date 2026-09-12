@@ -19,6 +19,7 @@ function canSubmitEmail(value: string) {
 
 export function HeroSignup() {
   const [email, setEmail] = useState("");
+  const [resumeToken, setResumeToken] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -35,7 +36,12 @@ export function HeroSignup() {
     setIsSubmitting(true);
     const result = await submitLandingEmail(trimmedEmail);
     setIsSubmitting(false);
-    if (result.ok) setSubmitted(true);
+    if (result.ok && result.resumeToken) {
+      setResumeToken(result.resumeToken);
+      setSubmitted(true);
+    } else if (result.ok) {
+      setError("We couldn't create your survey link. Please try again.");
+    }
     else setError(result.errors?.email ?? result.message ?? "We couldn't save your email. Please try again.");
   }
 
@@ -137,7 +143,7 @@ export function HeroSignup() {
               className="shrink-0"
             >
               <Link
-                href={`/survey?email=${encodeURIComponent(trimmedEmail)}&source=landing`}
+                href={`/survey?resume=${encodeURIComponent(resumeToken)}&source=landing`}
                 className="flex h-full items-center gap-2.5 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 ease-ui hover:bg-[color-mix(in_oklch,var(--color-surface-dark),white_8%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20"
               >
                 Help shape Miora

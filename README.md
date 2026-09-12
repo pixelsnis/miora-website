@@ -23,9 +23,10 @@ The landing signup and survey submit through Notion Server Actions. Configure th
 ```text
 NOTION_API_KEY=secret_...
 NOTION_DATA_SOURCE_ID=...
+SURVEY_RESUME_SECRET=use-a-long-random-secret
 ```
 
-The Notion data source must contain `Name` (title), `Email` (email), and the eight rich-text properties documented in [docs/miora-early-access-survey.md](docs/miora-early-access-survey.md). Local tests do not make requests to Notion.
+The Notion data source must contain `Name` (title), `Email` (email), and the eight rich-text properties documented in [docs/miora-early-access-survey.md](docs/miora-early-access-survey.md). `SURVEY_RESUME_SECRET` must be stable across deployments; changing it invalidates existing survey links. Local tests do not make requests to Notion.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

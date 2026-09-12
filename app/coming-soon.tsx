@@ -9,6 +9,7 @@ import { submitLandingEmail } from "./actions";
 
 export function ComingSoon() {
   const [email, setEmail] = useState("");
+  const [resumeToken, setResumeToken] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -22,8 +23,17 @@ export function ComingSoon() {
     setIsSubmitting(true);
     const result = await submitLandingEmail(trimmedEmail);
     setIsSubmitting(false);
-    if (result.ok) setSubmitted(true);
-    else setError(result.errors?.email ?? result.message ?? "We couldn't save your email. Please try again.");
+    if (result.ok && result.resumeToken) {
+      setResumeToken(result.resumeToken);
+      setSubmitted(true);
+    } else if (result.ok) {
+      setError("We couldn't create your survey link. Please try again.");
+    } else
+      setError(
+        result.errors?.email ??
+          result.message ??
+          "We couldn't save your email. Please try again.",
+      );
   }
 
   return (
@@ -65,7 +75,7 @@ export function ComingSoon() {
           />
           {submitted ? (
             <Link
-              href={`/survey?email=${encodeURIComponent(trimmedEmail)}&source=landing`}
+              href={`/survey?resume=${encodeURIComponent(resumeToken)}&source=landing`}
               className="flex shrink-0 items-center gap-2 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white"
             >
               Help shape Miora <ArrowRight size={18} />
@@ -76,11 +86,23 @@ export function ComingSoon() {
               disabled={!canSubmit || isSubmitting}
               className="flex shrink-0 items-center justify-center gap-2 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isSubmitting ? <LoaderCircle size={16} className="animate-spin" aria-label="Submitting" /> : "Sign Up"}
+              {isSubmitting ? (
+                <LoaderCircle
+                  size={16}
+                  className="animate-spin"
+                  aria-label="Submitting"
+                />
+              ) : (
+                "Sign Up"
+              )}
             </button>
           )}
         </form>
-        {error ? <p role="alert" className="mt-2 w-full text-xs text-clay">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="mt-2 w-full text-xs text-clay">
+            {error}
+          </p>
+        ) : null}
       </div>
 
       <div className="relative h-[240px] w-full shrink-0 select-none overflow-hidden sm:h-[280px] md:h-[360px]">
@@ -96,7 +118,7 @@ export function ComingSoon() {
         <div className="absolute left-1/2 top-1/2 flex w-[240px] -translate-x-1/2 -translate-y-1/2 flex-col items-start gap-2 rounded-[10px] bg-white px-4 py-3 shadow-[0_7px_7.5px_rgba(0,0,0,0.1),0_26px_13px_rgba(0,0,0,0.09),0_59px_18px_rgba(0,0,0,0.05),0_106px_21px_rgba(0,0,0,0.01)]">
           <p className="w-full font-mono text-sm font-semibold leading-[1.5] tracking-[-0.35px] text-ink">
             <span className="font-normal text-dusty-blue">❯</span>
-            {` npx miora`}
+            {` miora when`}
           </p>
           <p className="w-full font-mono text-[12px] leading-[1.5] tracking-[-0.3px] text-text-muted">
             Coming soon.

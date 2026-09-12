@@ -73,14 +73,29 @@ export type SurveySubmissionInput = {
   email: string
   agentsUsed: string[]
   workLocation: number
-  workflowPrimary: string | null
-  workflowSecondary: string | null
+  workflow: string[]
   knowledgeLocations: string[]
   knowledgeOrganization: string[]
   preservedKnowledge: string[]
   teamMaintainedPercent: number
   knowledgeMaintenance: string | null
   sixMonthSourceOfTruth: string
+}
+
+export function emptySurveySubmission(email: string): SurveySubmissionInput {
+  return {
+    name: "",
+    email: normalizeEmail(email),
+    agentsUsed: [],
+    workLocation: 0.5,
+    workflow: [],
+    knowledgeLocations: [],
+    knowledgeOrganization: [],
+    preservedKnowledge: [],
+    teamMaintainedPercent: 50,
+    knowledgeMaintenance: null,
+    sixMonthSourceOfTruth: "",
+  }
 }
 
 export type SurveyErrors = Partial<Record<
@@ -131,14 +146,12 @@ export function validateSurvey(input: SurveySubmissionInput): SurveyErrors {
   if (!Number.isFinite(input.workLocation) || input.workLocation < 0 || input.workLocation > 1) {
     errors.workLocation = "Choose a work location."
   }
-  if (!workflows.includes(input.workflowPrimary as (typeof workflows)[number])) {
-    errors.workflow = "Choose a primary workflow."
-  }
-  if (input.workflowSecondary !== null && !workflows.includes(input.workflowSecondary as (typeof workflows)[number])) {
-    errors.workflow = "Choose a valid secondary workflow."
-  }
-  if (input.workflowSecondary !== null && input.workflowSecondary === input.workflowPrimary) {
-    errors.workflow = "Primary and secondary workflows must differ."
+  if (!isUniqueAllowed(input.workflow, workflows)) {
+    errors.workflow = "Choose valid workflow options."
+  } else if (input.workflow.length === 0) {
+    errors.workflow = "Select at least one workflow."
+  } else if (input.workflow.length > 3) {
+    errors.workflow = "Choose up to three workflows."
   }
   if (!isUniqueAllowed(input.knowledgeLocations, knowledgeLocations)) {
     errors.knowledgeLocations = "Choose valid knowledge locations."
@@ -149,6 +162,8 @@ export function validateSurvey(input: SurveySubmissionInput): SurveyErrors {
     errors.knowledgeOrganization = "Choose valid knowledge structures."
   } else if (input.knowledgeOrganization.length === 0) {
     errors.knowledgeOrganization = "Select at least one knowledge structure."
+  } else if (input.knowledgeOrganization.length > 3) {
+    errors.knowledgeOrganization = "Choose up to three knowledge structures."
   }
   if (!isUniqueAllowed(input.preservedKnowledge, preservedKnowledge)) {
     errors.preservedKnowledge = "Choose valid preserved knowledge options."
@@ -176,10 +191,7 @@ export function stringifySurveyAnswers(input: SurveySubmissionInput) {
   return {
     "01 - Agents Used": JSON.stringify(input.agentsUsed),
     "02 - Work Location": JSON.stringify(input.workLocation),
-    "03 - Workflow": JSON.stringify({
-      primary: input.workflowPrimary,
-      secondary: input.workflowSecondary,
-    }),
+    "03 - Workflow": JSON.stringify(input.workflow),
     "04 - Knowledge Locations": JSON.stringify(input.knowledgeLocations),
     "05 - Knowledge Organization": JSON.stringify(input.knowledgeOrganization),
     "06 - Preserved Knowledge": JSON.stringify(input.preservedKnowledge),

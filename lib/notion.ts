@@ -1,7 +1,15 @@
 import {
+  agents,
+  emptySurveySubmission,
+  knowledgeLocations,
+  knowledgeOrganization,
+  maintenanceOptions,
+  preservedKnowledge,
   normalizeEmail,
   stringifySurveyAnswers,
   type SurveySubmissionInput,
+  validateEmail,
+  workflows,
 } from "./survey"
 
 const NOTION_VERSION = "2026-03-11"
@@ -19,12 +27,20 @@ const RESPONSE_PROPERTIES = [
 
 type NotionPage = {
   id: string
+  last_edited_time?: string
   properties?: Record<string, NotionProperty>
+}
+
+type NotionText = {
+  plain_text?: string
+  text?: { content?: string }
 }
 
 type NotionProperty = {
   type?: string
-  rich_text?: Array<{ plain_text?: string; text?: { content?: string } }>
+  title?: NotionText[]
+  rich_text?: NotionText[]
+  email?: string | null
 }
 
 type NotionList<T> = {
@@ -92,6 +108,7 @@ async function queryRows(email: string) {
   do {
     const body: Record<string, unknown> = {
       page_size: 100,
+      sorts: [{ timestamp: "last_edited_time", direction: "descending" }],
       filter: { property: "Email", email: { equals: normalizeEmail(email) } },
     }
     if (cursor) body.start_cursor = cursor
@@ -105,11 +122,89 @@ async function queryRows(email: string) {
   return rows
 }
 
-function propertyText(page: NotionPage, name: string) {
-  return (page.properties?.[name]?.rich_text ?? [])
+function propertyText(page: NotionPage, name: string, type: "title" | "rich_text" = "rich_text") {
+  const property = page.properties?.[name]
+  const fragments = type === "title" ? property?.title ?? [] : property?.rich_text ?? []
+  return fragments
     .map((item) => item.plain_text ?? item.text?.content ?? "")
     .join("")
     .trim()
+}
+
+function propertyEmail(page: NotionPage, name: string) {
+  const value = page.properties?.[name]?.email
+  return typeof value === "string" ? value : ""
+}
+
+function parseJson(value: string) {
+  try {
+    return JSON.parse(value) as unknown
+  } catch {
+    return null
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value)
+}
+
+function allowedValues(value: unknown, allowed: readonly string[], max: number) {
+  if (!Array.isArray(value)) return []
+  return [...new Set(
+    value.filter((item): item is string => typeof item === "string" && allowed.includes(item)),
+  )].slice(0, max)
+}
+
+function parseWorkflow(value: string) {
+  const parsed = parseJson(value)
+  if (Array.isArray(parsed)) return allowedValues(parsed, workflows, 3)
+  if (isRecord(parsed)) return allowedValues([parsed.primary, parsed.secondary], workflows, 3)
+  return []
+}
+
+function parseNumber(value: unknown, fallback: number, min: number, max: number, integer = false) {
+  return typeof value === "number" && Number.isFinite(value) && value >= min && value <= max && (!integer || Number.isInteger(value))
+    ? value
+    : fallback
+}
+
+function translateSurveyRow(page: NotionPage, email: string): SurveySubmissionInput {
+  const survey = emptySurveySubmission(email)
+  const name = propertyText(page, "Name", "title")
+  const storedEmail = normalizeEmail(propertyEmail(page, "Email"))
+
+  survey.name = name === "Unknown" ? "" : name.slice(0, 1000)
+  survey.email = validateEmail(storedEmail) ? storedEmail : survey.email
+  survey.agentsUsed = allowedValues(parseJson(propertyText(page, "01 - Agents Used")), agents, agents.length)
+  survey.workLocation = parseNumber(parseJson(propertyText(page, "02 - Work Location")), 0.5, 0, 1)
+  survey.workflow = parseWorkflow(propertyText(page, "03 - Workflow"))
+  survey.knowledgeLocations = allowedValues(
+    parseJson(propertyText(page, "04 - Knowledge Locations")),
+    knowledgeLocations,
+    knowledgeLocations.length,
+  )
+  survey.knowledgeOrganization = allowedValues(
+    parseJson(propertyText(page, "05 - Knowledge Organization")),
+    knowledgeOrganization,
+    3,
+  )
+  survey.preservedKnowledge = allowedValues(
+    parseJson(propertyText(page, "06 - Preserved Knowledge")),
+    preservedKnowledge,
+    5,
+  )
+
+  const maintenance = parseJson(propertyText(page, "07 - Knowledge Maintenance"))
+  if (isRecord(maintenance)) {
+    survey.teamMaintainedPercent = parseNumber(maintenance.human, 50, 0, 100, true)
+    survey.knowledgeMaintenance = maintenanceOptions.includes(maintenance.overTime as (typeof maintenanceOptions)[number])
+      ? maintenance.overTime as (typeof maintenanceOptions)[number]
+      : null
+  }
+
+  const sourceOfTruth = parseJson(propertyText(page, "08 - Six Month Source of Truth"))
+  survey.sixMonthSourceOfTruth = typeof sourceOfTruth === "string" ? sourceOfTruth.slice(0, 1000) : ""
+  return survey
 }
 
 function isCompleted(page: NotionPage) {
@@ -130,8 +225,7 @@ export async function registerEmail(email: string) {
         email: normalizedEmail,
         agentsUsed: [],
         workLocation: 0.5,
-        workflowPrimary: null,
-        workflowSecondary: null,
+        workflow: [],
         knowledgeLocations: [],
         knowledgeOrganization: [],
         preservedKnowledge: [],
@@ -142,6 +236,14 @@ export async function registerEmail(email: string) {
     }),
   })
   return normalizedEmail
+}
+
+export async function getSurveyByEmail(email: string): Promise<SurveySubmissionInput | null> {
+  const normalizedEmail = normalizeEmail(email)
+  if (!validateEmail(normalizedEmail)) return null
+  const rows = await queryRows(normalizedEmail)
+  const row = rows.find(isCompleted) ?? rows[0]
+  return row ? translateSurveyRow(row, normalizedEmail) : null
 }
 
 export async function saveSurvey(input: SurveySubmissionInput, fromLanding: boolean) {

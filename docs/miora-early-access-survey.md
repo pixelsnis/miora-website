@@ -10,14 +10,14 @@ The survey is persisted as one Notion data-source row. `Name` and `Email` are th
 | `Email` | Email | Trimmed, lowercase email; maximum 200 characters |
 | `01 - Agents Used` | Rich text | JSON string array |
 | `02 - Work Location` | Rich text | JSON number from 0 to 1 |
-| `03 - Workflow` | Rich text | JSON object with `primary` and `secondary` |
+| `03 - Workflow` | Rich text | JSON string array |
 | `04 - Knowledge Locations` | Rich text | JSON string array |
 | `05 - Knowledge Organization` | Rich text | JSON string array |
 | `06 - Preserved Knowledge` | Rich text | JSON string array |
 | `07 - Knowledge Maintenance` | Rich text | JSON object with `human`, `agent`, and `overTime` |
 | `08 - Six Month Source of Truth` | Rich text | JSON string; optional and maximum 1,000 characters before stringification |
 
-The server validates every answer before writing. Questions 1, 4, 5, and 6 require at least one selection; preserved knowledge allows at most five unique selections; and `human + agent` must equal `100`. Rich-text values are split into safe fragments when needed to stay within Notion’s per-fragment limit.
+The server validates every answer before writing. Questions 1, 3, 4, 5, and 6 require at least one selection; workflows and knowledge organization allow at most three unique selections; preserved knowledge allows at most five unique selections; and `human + agent` must equal `100`. Rich-text values are split into safe fragments when needed to stay within Notion’s per-fragment limit.
 
 For a landing-origin survey (`source=landing`), a row is complete when properties `01` through `07` are all non-empty. Completed rows are never overwritten. Direct survey submissions always create a new row.
 
@@ -31,11 +31,11 @@ For a landing-origin survey (`source=landing`), a row is complete when propertie
 
 ### Email
 
-**Component:** Email input, pre-filled from the landing-page `email` query parameter (for example, `?email=person%40example.com`).
+**Component:** Email input, pre-filled from a server-verified landing-page resume link (for example, `/survey?resume=...&source=landing`). The `resume` value is a short-lived authenticated token; the respondent's email is not placed directly in the URL.
 
 **JSON translation:** `respondent.email` — email-formatted string.
 
-Populate the field from `email` when the survey loads. Keep it editable so the respondent can correct an invalid or outdated address, and validate it as an email address before submission.
+Populate the field from the verified resume token when the survey loads. Keep it editable so the respondent can correct an invalid or outdated address, and validate it as an email address before submission. Resume tokens expire after 30 days; a missing, invalid, or expired token loads a blank survey. Raw `email` query parameters do not load saved responses.
 
 ## 1. Which agents do you use regularly for software projects?
 
@@ -86,15 +86,15 @@ The numeric value may remain hidden in the UI. Store the slider's normalized val
 
 ## 3. How do you usually work with agents on a project?
 
-**Component:** Visual workflow cards.
+**Component:** Visual workflow checkbox cards.
 
-**JSON translation:** `answers.workflow` — object with `primary` and `secondary` keys. Set `secondary` to `null` when omitted.
+**JSON translation:** `answers.workflow` — array of up to three unique workflow strings.
 
 Prompt:
 
-> Choose the closest match.
+> Select all the workflows that sound like your project. Pick up to 3.
 
-Allow one **primary** choice and, optionally, one **secondary** choice.
+Allow one to three selections.
 
 ### A. One continuous agent
 
@@ -104,7 +104,7 @@ You ↔ Agent
    Project
 ```
 
-One primary conversation or session that accumulates context.
+One conversation or session that accumulates context.
 
 ### B. Separate threads by task
 
@@ -142,6 +142,8 @@ You ───┼→ Agent B ─┼→ result
 ### F. Other
 
 No free-response field.
+
+Selecting `Other` does not collect additional text.
 
 ---
 
@@ -184,11 +186,11 @@ Use **“accumulate”** rather than only asking where people deliberately docum
 
 ## 5. How is your durable project knowledge organized?
 
-**Component:** Visual structure cards.
+**Component:** Visual structure checkbox cards.
 
-**JSON translation:** `answers.knowledgeOrganization` — array of unique card-title strings without the `A.`–`G.` prefixes.
+**JSON translation:** `answers.knowledgeOrganization` — array of up to three unique card-title strings without the `A.`–`G.` prefixes.
 
-Allow multi-select if needed.
+Allow one to three selections.
 
 ### A. A few canonical files
 
