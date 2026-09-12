@@ -4,6 +4,12 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 import { Check, Folder } from "griddy-icons";
 import { animate } from "motion";
 import { useAnimationFrame, useReducedMotion } from "motion/react";
+import {
+  ignoreAbort,
+  sleep,
+  WipeReplace,
+  type WipeReplaceHandle,
+} from "./wipe-replace";
 
 const FOLDER = { x: 130, y: 120 };
 
@@ -45,10 +51,7 @@ type Pulse = {
 };
 
 const TRAVEL_DURATION = 1.5;
-const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 const HOLD_MS = 2000;
-const SHIMMER_MS = 1800;
-const PUSH_MS = 280;
 
 const idleFace = {
   id: "idle",
@@ -67,23 +70,6 @@ type Face = typeof idleFace | (typeof statusFaces)[number];
 
 function randomBetween(min: number, max: number) {
   return min + Math.random() * (max - min);
-}
-
-function sleep(ms: number, signal: AbortSignal) {
-  return new Promise<void>((resolve, reject) => {
-    if (signal.aborted) {
-      reject(new DOMException("Aborted", "AbortError"));
-      return;
-    }
-
-    const id = window.setTimeout(resolve, ms);
-    const onAbort = () => {
-      window.clearTimeout(id);
-      reject(new DOMException("Aborted", "AbortError"));
-    };
-
-    signal.addEventListener("abort", onAbort, { once: true });
-  });
 }
 
 function driftOffset(time: number, spec: (typeof agents)[number]["drift"]) {
@@ -112,29 +98,10 @@ function FaceContent({ face }: { face: Face }) {
 function KnowledgeFolderRow({ play }: { play: boolean }) {
   const shouldReduceMotion = useReducedMotion();
   const [statusIndex, setStatusIndex] = useState(0);
-  const idleRef = useRef<HTMLDivElement>(null);
-  const statusRef = useRef<HTMLDivElement>(null);
-  const wipeRef = useRef<HTMLDivElement>(null);
+  const wipeRef = useRef<WipeReplaceHandle>(null);
 
   useEffect(() => {
-    const idleEl = idleRef.current;
-    const statusEl = statusRef.current;
-    const wipeEl = wipeRef.current;
-
-    const resetLayers = () => {
-      if (idleEl) {
-        idleEl.style.transform = "translateY(0%)";
-      }
-      if (statusEl) {
-        statusEl.style.transform = "translateY(100%)";
-      }
-      if (wipeEl) {
-        wipeEl.style.transform = "translateX(-130%)";
-        wipeEl.style.opacity = "0";
-      }
-    };
-
-    resetLayers();
+    wipeRef.current?.reset();
 
     if (shouldReduceMotion || !play) {
       return;
@@ -142,115 +109,41 @@ function KnowledgeFolderRow({ play }: { play: boolean }) {
 
     const abort = new AbortController();
     const { signal } = abort;
-    const running: ReturnType<typeof animate>[] = [];
     let nextStatus = 0;
-
-    const shimmer = async () => {
-      if (!wipeEl) {
-        await sleep(SHIMMER_MS, signal);
-        return;
-      }
-
-      wipeEl.style.transform = "translateX(-130%)";
-      wipeEl.style.opacity = "1";
-      const wipe = animate(
-        wipeEl,
-        { transform: ["translateX(-130%)", "translateX(210%)"] },
-        { duration: SHIMMER_MS / 1000, ease: "linear" },
-      );
-      running.push(wipe);
-      await sleep(SHIMMER_MS, signal);
-      wipeEl.style.opacity = "0";
-      wipeEl.style.transform = "translateX(-130%)";
-    };
-
-    const pushSwap = async (
-      outgoing: HTMLDivElement,
-      incoming: HTMLDivElement,
-    ) => {
-      outgoing.style.transform = "translateY(0%)";
-      incoming.style.transform = "translateY(100%)";
-      const outAnim = animate(
-        outgoing,
-        { transform: ["translateY(0%)", "translateY(-100%)"] },
-        { duration: PUSH_MS / 1000, ease: EASE_OUT },
-      );
-      const inAnim = animate(
-        incoming,
-        { transform: ["translateY(100%)", "translateY(0%)"] },
-        { duration: PUSH_MS / 1000, ease: EASE_OUT },
-      );
-      running.push(outAnim, inAnim);
-      await sleep(PUSH_MS, signal);
-      outgoing.style.transform = "translateY(-100%)";
-      incoming.style.transform = "translateY(0%)";
-    };
 
     const loop = async () => {
       await sleep(HOLD_MS, signal);
       while (!signal.aborted) {
-        await shimmer();
-        if (idleEl && statusEl) {
-          await pushSwap(idleEl, statusEl);
-        }
+        await wipeRef.current?.wipeAndShowStatus(signal);
         await sleep(HOLD_MS, signal);
-        if (idleEl && statusEl) {
-          await pushSwap(statusEl, idleEl);
-          statusEl.style.transform = "translateY(100%)";
-        }
+        await wipeRef.current?.restoreIdle(signal);
         nextStatus = (nextStatus + 1) % statusFaces.length;
         setStatusIndex(nextStatus);
         await sleep(HOLD_MS, signal);
       }
     };
 
-    loop().catch((error: unknown) => {
-      if (error instanceof DOMException && error.name === "AbortError") {
-        return;
-      }
-
-      throw error;
-    });
+    loop().catch(ignoreAbort);
 
     return () => {
       abort.abort();
-      for (const control of running) {
-        control.stop();
-      }
-      resetLayers();
+      wipeRef.current?.reset();
     };
   }, [play, shouldReduceMotion]);
 
   const status = statusFaces[statusIndex] ?? statusFaces[0];
+  const faceClassName =
+    "flex items-center gap-2 bg-background px-4 py-3.5";
 
   return (
     <div className="absolute left-1/2 top-1/2 z-20 w-[190pt] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[10px] bg-background font-mono text-[14px] text-ink shadow-[0_24px_24px_rgba(0,0,0,.25),0_55px_33px_rgba(0,0,0,.15),0_98px_39px_rgba(0,0,0,.04)]">
-      <div className="relative overflow-hidden">
-        <div
-          ref={idleRef}
-          className="flex items-center gap-2 bg-background px-4 py-3.5"
-        >
-          <FaceContent face={idleFace} />
-        </div>
-        <div
-          ref={statusRef}
-          className="absolute inset-0 flex items-center gap-2 bg-background px-4 py-3.5"
-          style={{ transform: "translateY(100%)" }}
-          aria-hidden="true"
-        >
-          <FaceContent face={status} />
-        </div>
-        <div
-          ref={wipeRef}
-          className="pointer-events-none absolute inset-y-0 left-0 w-[42%] opacity-0"
-          style={{
-            background:
-              "linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--color-moss) 38%, transparent) 50%, transparent 100%)",
-            transform: "translateX(-130%)",
-          }}
-          aria-hidden="true"
-        />
-      </div>
+      <WipeReplace
+        ref={wipeRef}
+        idleClassName={faceClassName}
+        statusClassName={faceClassName}
+        idle={<FaceContent face={idleFace} />}
+        status={<FaceContent face={status} />}
+      />
     </div>
   );
 }
@@ -361,13 +254,7 @@ export function AnyAgentWidget({ play }: { play: boolean }) {
       }
     };
 
-    loop().catch((error: unknown) => {
-      if (error instanceof DOMException && error.name === "AbortError") {
-        return;
-      }
-
-      throw error;
-    });
+    loop().catch(ignoreAbort);
 
     return () => {
       abort.abort();
