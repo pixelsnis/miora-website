@@ -1,5 +1,6 @@
-import { HeroIllustration } from "./hero-illustration";
+import { ComingSoon } from "./coming-soon";
 import { FeatureCards } from "./feature-cards";
+import { HeroIllustration } from "./hero-illustration";
 
 export default function Home() {
   return (
@@ -11,7 +12,9 @@ export default function Home() {
           <span className="w-[120px] text-center" aria-disabled="true">Features</span>
           <span className="w-[120px] text-center" aria-disabled="true">Cloud</span>
         </nav>
-        <span className="text-text-muted" aria-disabled="true">Coming Soon</span>
+        <a href="#coming-soon" className="text-text-muted hover:text-ink">
+          Coming Soon
+        </a>
       </header>
 
       <section className="mx-auto flex max-h-[90vh] min-h-0 w-full max-w-[1280px] flex-col justify-center px-4 pb-8 pt-12 sm:px-8 lg:px-[72px] lg:py-12" aria-labelledby="hero-heading">
@@ -30,6 +33,7 @@ export default function Home() {
       </section>
 
       <FeatureCards />
+      <ComingSoon />
     </main>
   );
 }
