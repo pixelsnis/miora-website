@@ -1,106 +1,25 @@
 # Miora Early Access Survey
 
-## Response JSON Schema
+## Notion storage schema
 
-The JSON response is the canonical survey record. Validate it on the server before saving it. `schemaVersion` allows the format to evolve without making older responses ambiguous.
+The survey is persisted as one Notion data-source row. `Name` and `Email` are the respondent properties; each question has its own rich-text property containing the compact `JSON.stringify` value for that answer.
 
-```json
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://miora.dev/schemas/early-access-survey-response-v1.json",
-  "title": "Miora early access survey response",
-  "type": "object",
-  "additionalProperties": false,
-  "required": ["schemaVersion", "submittedAt", "respondent", "answers"],
-  "properties": {
-    "schemaVersion": { "const": 1 },
-    "submittedAt": { "type": "string", "format": "date-time" },
-    "respondent": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["name", "email"],
-      "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "email": { "type": "string", "format": "email" }
-      }
-    },
-    "answers": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "agentsUsed",
-        "workLocation",
-        "workflow",
-        "knowledgeLocations",
-        "knowledgeOrganization",
-        "preservedKnowledge",
-        "knowledgeMaintenance",
-        "sixMonthSourceOfTruth"
-      ],
-      "properties": {
-        "agentsUsed": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "enum": ["ChatGPT + Codex", "Claude + Claude Code", "Cursor", "Gemini + Antigravity", "GitHub Copilot", "OpenCode", "Pi / OMP", "Devin", "Other"]
-          }
-        },
-        "workLocation": { "type": "number", "minimum": 0, "maximum": 1 },
-        "workflow": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["primary", "secondary"],
-          "properties": {
-            "primary": { "$ref": "#/$defs/workflow" },
-            "secondary": { "oneOf": [{ "$ref": "#/$defs/workflow" }, { "type": "null" }] }
-          }
-        },
-        "knowledgeLocations": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "enum": ["Source code", "README / top-level Markdown", "/docs or similar", "AGENTS.md, CLAUDE.md, rules files, etc.", "Notion / Confluence", "Linear / GitHub Issues", "Figma", "Personal notes / Markdown", "Google Docs / similar", "Chat histories", "Agent memory / saved context", "Mostly in my head", "Other"]
-          }
-        },
-        "knowledgeOrganization": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "enum": ["A few canonical files", "A documentation tree", "Knowledge near the thing it describes", "Organized primarily in an external tool", "Distributed across several places", "There isn't much structure", "Other"]
-          }
-        },
-        "preservedKnowledge": {
-          "type": "array",
-          "maxItems": 5,
-          "uniqueItems": true,
-          "items": {
-            "enum": ["Product requirements / specs", "Decisions and rationale", "Architecture", "Implementation details", "Research", "Design context", "Customer / user insights", "Plans / roadmap", "Open questions", "Bugs / known issues", "Conventions / preferences", "Operational knowledge", "Other"]
-          }
-        },
-        "knowledgeMaintenance": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["human", "shared", "agent", "overTime"],
-          "properties": {
-            "human": { "type": "integer", "minimum": 0, "maximum": 100 },
-            "shared": { "type": "integer", "minimum": 0, "maximum": 100 },
-            "agent": { "type": "integer", "minimum": 0, "maximum": 100 },
-            "overTime": { "enum": ["Mostly stays current", "Some stays current", "Mostly goes stale", "I don't really maintain it"] }
-          }
-        },
-        "sixMonthSourceOfTruth": { "type": "string" }
-      }
-    }
-  },
-  "$defs": {
-    "workflow": {
-      "enum": ["One continuous agent", "Separate threads by task", "Different agents for different roles", "Lead agent + subagents", "Parallel / swarm", "Other"]
-    }
-  }
-}
-```
+| Property | Type | Stored value |
+| --- | --- | --- |
+| `Name` | Title | Name, or `Unknown` for a landing-only signup; maximum 1,000 characters |
+| `Email` | Email | Trimmed, lowercase email; maximum 200 characters |
+| `01 - Agents Used` | Rich text | JSON string array |
+| `02 - Work Location` | Rich text | JSON number from 0 to 1 |
+| `03 - Workflow` | Rich text | JSON object with `primary` and `secondary` |
+| `04 - Knowledge Locations` | Rich text | JSON string array |
+| `05 - Knowledge Organization` | Rich text | JSON string array |
+| `06 - Preserved Knowledge` | Rich text | JSON string array |
+| `07 - Knowledge Maintenance` | Rich text | JSON object with `human`, `agent`, and `overTime` |
+| `08 - Six Month Source of Truth` | Rich text | JSON string; optional and maximum 1,000 characters before stringification |
 
-JSON Schema cannot express the ownership-total rule directly: `human + shared + agent` must equal `100`. Enforce that invariant in application validation.
+The server validates every answer before writing. Questions 1, 4, 5, and 6 require at least one selection; preserved knowledge allows at most five unique selections; and `human + agent` must equal `100`. Rich-text values are split into safe fragments when needed to stay within Notion’s per-fragment limit.
+
+For a landing-origin survey (`source=landing`), a row is complete when properties `01` through `07` are all non-empty. Completed rows are never overwritten. Direct survey submissions always create a new row.
 
 ## Respondent Information
 
@@ -343,9 +262,9 @@ Selecting `Other` does not collect additional text.
 
 **Component:** Three-way proportion control.
 
-**JSON translation:** `answers.knowledgeMaintenance` — object containing `human`, `shared`, `agent`, and `overTime`.
+**JSON translation:** `answers.knowledgeMaintenance` — object containing `human`, `agent`, and `overTime`.
 
-Store `human`, `shared`, and `agent` as integer percentages from `0` to `100`. Validate in the form that they total `100`.
+Store `human` and `agent` as integer percentages from `0` to `100`. Validate in the form that they total `100`.
 
 Example:
 

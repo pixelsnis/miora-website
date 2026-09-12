@@ -1,6 +1,31 @@
+"use client";
+
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "griddy-icons";
+import { LoaderCircle } from "lucide-react";
+import { useState } from "react";
+import { submitLandingEmail } from "./actions";
 
 export function ComingSoon() {
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const trimmedEmail = email.trim();
+  const canSubmit = trimmedEmail.length > 0 && trimmedEmail.includes("@");
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!canSubmit || submitted || isSubmitting) return;
+    setError("");
+    setIsSubmitting(true);
+    const result = await submitLandingEmail(trimmedEmail);
+    setIsSubmitting(false);
+    if (result.ok) setSubmitted(true);
+    else setError(result.errors?.email ?? result.message ?? "We couldn't save your email. Please try again.");
+  }
+
   return (
     <section
       id="coming-soon"
@@ -19,9 +44,10 @@ export function ComingSoon() {
             [in development]
           </p>
         </div>
-        <div
+        <form
+          onSubmit={handleSubmit}
           className="flex w-full border border-line"
-          aria-label="Early access signup placeholder"
+          aria-label="Early access signup"
         >
           <label htmlFor="coming-soon-email" className="sr-only">
             Email address
@@ -30,18 +56,31 @@ export function ComingSoon() {
             id="coming-soon-email"
             name="email"
             type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            maxLength={200}
+            disabled={submitted || isSubmitting}
             placeholder="winger@greendale.edu"
-            disabled
             className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-text-muted outline-none placeholder:text-text-muted disabled:cursor-not-allowed"
           />
-          <button
-            type="button"
-            disabled
-            className="shrink-0 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed"
-          >
-            Sign Up
-          </button>
-        </div>
+          {submitted ? (
+            <Link
+              href={`/survey?email=${encodeURIComponent(trimmedEmail)}&source=landing`}
+              className="flex shrink-0 items-center gap-2 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white"
+            >
+              Help shape Miora <ArrowRight size={18} />
+            </Link>
+          ) : (
+            <button
+              type="submit"
+              disabled={!canSubmit || isSubmitting}
+              className="flex shrink-0 items-center justify-center gap-2 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isSubmitting ? <LoaderCircle size={16} className="animate-spin" aria-label="Submitting" /> : "Sign Up"}
+            </button>
+          )}
+        </form>
+        {error ? <p role="alert" className="mt-2 w-full text-xs text-clay">{error}</p> : null}
       </div>
 
       <div className="relative h-[240px] w-full shrink-0 select-none overflow-hidden sm:h-[280px] md:h-[360px]">

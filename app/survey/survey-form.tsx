@@ -28,6 +28,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
+import { submitSurvey } from "@/app/actions"
+import { validateSurvey, type SurveyErrors } from "@/lib/survey"
+import { LoaderCircle } from "lucide-react"
 
 const agents = [
   "ChatGPT + Codex",
@@ -160,14 +163,19 @@ type SurveyState = {
   sixMonthSourceOfTruth: string
 }
 
-type Errors = Partial<Record<"name" | "email" | "workLocation" | "workflow" | "ownership" | "maintenance", string>>
+type Errors = SurveyErrors
 
 const errorKeyByState: Partial<Record<keyof SurveyState, keyof Errors>> = {
   name: "name",
   email: "email",
+  agentsUsed: "agentsUsed",
   workflowPrimary: "workflow",
+  knowledgeLocations: "knowledgeLocations",
+  knowledgeOrganization: "knowledgeOrganization",
+  preservedKnowledge: "preservedKnowledge",
   teamMaintainedPercent: "ownership",
   knowledgeMaintenance: "maintenance",
+  sixMonthSourceOfTruth: "sourceOfTruth",
 }
 
 const initialState = (email: string): SurveyState => ({
@@ -269,10 +277,12 @@ function QuestionHeading({
   )
 }
 
-export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
+export default function SurveyForm({ initialEmail, fromLanding = false }: { initialEmail: string; fromLanding?: boolean }) {
   const [state, setState] = React.useState(() => initialState(initialEmail))
   const [errors, setErrors] = React.useState<Errors>({})
   const [preservedNotice, setPreservedNotice] = React.useState(false)
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [submitted, setSubmitted] = React.useState(false)
 
   const update = <K extends keyof SurveyState>(key: K, value: SurveyState[K]) => {
     setState((current) => ({ ...current, [key]: value }))
@@ -287,8 +297,20 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
     }
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (isSubmitting || submitted) return
+    const nextErrors = validateSurvey(state)
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors)
+      return
+    }
+    setErrors({})
+    setIsSubmitting(true)
+    const result = await submitSurvey(state, fromLanding)
+    setIsSubmitting(false)
+    if (result.ok) setSubmitted(true)
+    else setErrors(result.errors ?? { form: result.message ?? "We couldn't save your response. Please try again." })
   }
 
   const teamMaintained = state.teamMaintainedPercent
@@ -302,6 +324,21 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
 
   const chipClassName =
     "h-auto min-h-8 rounded-none px-3 py-1.5 text-sm font-normal data-pressed:border-ink data-pressed:bg-surface-1 data-pressed:text-ink"
+
+  if (submitted) {
+    return (
+      <main className="bg-background text-ink">
+        <div className="mx-auto flex w-full max-w-[720px] flex-col gap-4 px-4 pb-20 pt-20 sm:px-6">
+          <h1 className="text-balance text-[36px] font-normal leading-[1.08] tracking-[-0.025em] text-ink sm:text-[40px]">
+            Thanks for helping shape Miora.
+          </h1>
+          <p className="max-w-[60ch] text-pretty text-sm leading-6 text-text-secondary">
+            Your response has been recorded.
+          </p>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="bg-background text-ink">
@@ -335,6 +372,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
                   onChange={(event) => update("name", event.target.value)}
                   aria-invalid={Boolean(errors.name)}
                   placeholder="Your name"
+                  maxLength={1000}
                   autoComplete="name"
                 />
                 <FieldError>{errors.name}</FieldError>
@@ -349,6 +387,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
                   aria-invalid={Boolean(errors.email)}
                   placeholder="you@example.com"
                   autoComplete="email"
+                  maxLength={200}
                 />
                 <FieldError>{errors.email}</FieldError>
               </Field>
@@ -364,7 +403,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
               title="Which agents do you use regularly for software projects?"
               description="Select all that are part of your normal project work."
             />
-            <FieldSet>
+            <FieldSet data-invalid={Boolean(errors.agentsUsed)}>
               <FieldLegend variant="label" className="sr-only">
                 Agents used regularly
               </FieldLegend>
@@ -387,6 +426,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
                   </ToggleGroupItem>
                 ))}
               </ToggleGroup>
+              <FieldError>{errors.agentsUsed}</FieldError>
             </FieldSet>
           </section>
 
@@ -542,7 +582,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
               title="Where does useful knowledge about a project currently accumulate?"
               description="Select every place where project knowledge tends to collect, even if you did not deliberately document it there."
             />
-            <FieldSet>
+            <FieldSet data-invalid={Boolean(errors.knowledgeLocations)}>
               <FieldLegend variant="label" className="sr-only">
                 Knowledge locations
               </FieldLegend>
@@ -571,6 +611,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
                 </div>
               ))}
               </div>
+              <FieldError>{errors.knowledgeLocations}</FieldError>
             </FieldSet>
           </section>
 
@@ -580,7 +621,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
               title="How is your durable project knowledge organized?"
               description="Select all the structures that sound like your project."
             />
-            <FieldSet>
+            <FieldSet data-invalid={Boolean(errors.knowledgeOrganization)}>
               <FieldLegend variant="label" className="sr-only" id="survey-knowledge-org-legend">
                 Knowledge organization
               </FieldLegend>
@@ -623,6 +664,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
                   )
                 })}
               </div>
+              <FieldError>{errors.knowledgeOrganization}</FieldError>
             </FieldSet>
           </section>
 
@@ -632,7 +674,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
               title="What kinds of knowledge do you intentionally preserve?"
               description="Pick up to 5."
             />
-            <FieldSet>
+            <FieldSet data-invalid={Boolean(errors.preservedKnowledge)}>
               <FieldLegend variant="label" className="sr-only">
                 Preserved knowledge
               </FieldLegend>
@@ -672,6 +714,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
                   <span className="text-destructive">You can select up to five.</span>
                 ) : null}
               </div>
+              <FieldError>{errors.preservedKnowledge}</FieldError>
             </FieldSet>
           </section>
 
@@ -771,6 +814,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
                 onChange={(event) => update("sixMonthSourceOfTruth", event.target.value)}
                 placeholder="I would start by looking at…"
                 rows={6}
+                maxLength={1000}
                 className="min-h-36 resize-y"
               />
               <FieldDescription>Optional.</FieldDescription>
@@ -778,8 +822,9 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
           </section>
 
           <div className="flex flex-col gap-4 border-t border-line pt-8">
-            <Button type="submit" className="h-[44px]">
-              Submit
+            {errors.form ? <p role="alert" className="text-sm text-clay">{errors.form}</p> : null}
+            <Button type="submit" className="h-[44px]" disabled={isSubmitting}>
+              {isSubmitting ? <><LoaderCircle className="size-4 animate-spin" /> Submitting…</> : "Submit"}
             </Button>
           </div>
         </form>

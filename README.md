@@ -16,6 +16,17 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Early access survey
+
+The landing signup and survey submit through Notion Server Actions. Configure these server-only variables in your deployment environment:
+
+```text
+NOTION_API_KEY=secret_...
+NOTION_DATA_SOURCE_ID=...
+```
+
+The Notion data source must contain `Name` (title), `Email` (email), and the eight rich-text properties documented in [docs/miora-early-access-survey.md](docs/miora-early-access-survey.md). Local tests do not make requests to Notion.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

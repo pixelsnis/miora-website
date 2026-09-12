@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, Check } from "griddy-icons";
+import { LoaderCircle } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn } from "cn";
+import { submitLandingEmail } from "./actions";
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 const FADE = { duration: 0.22, ease: EASE_OUT };
@@ -18,16 +20,23 @@ function canSubmitEmail(value: string) {
 export function HeroSignup() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const shouldReduceMotion = useReducedMotion();
   const trimmedEmail = email.trim();
   const canSubmit = canSubmitEmail(email);
   const motionTransition = shouldReduceMotion ? { duration: 0 } : LAYOUT;
   const fadeTransition = shouldReduceMotion ? { duration: 0 } : FADE;
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!canSubmit || submitted) return;
-    setSubmitted(true);
+    if (!canSubmit || submitted || isSubmitting) return;
+    setError("");
+    setIsSubmitting(true);
+    const result = await submitLandingEmail(trimmedEmail);
+    setIsSubmitting(false);
+    if (result.ok) setSubmitted(true);
+    else setError(result.errors?.email ?? result.message ?? "We couldn't save your email. Please try again.");
   }
 
   return (
@@ -92,6 +101,7 @@ export function HeroSignup() {
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
+                  maxLength={200}
                   placeholder="winger@greendale.edu"
                   autoComplete="email"
                   className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-ink outline-none placeholder:text-text-muted"
@@ -99,7 +109,7 @@ export function HeroSignup() {
                 <motion.button
                   layout
                   type="submit"
-                  disabled={!canSubmit}
+                  disabled={!canSubmit || isSubmitting}
                   transition={motionTransition}
                   className={cn(
                     "shrink-0 px-5 py-2.5 text-sm font-semibold transition-colors duration-200 ease-ui",
@@ -107,8 +117,8 @@ export function HeroSignup() {
                       ? "bg-surface-dark text-white"
                       : "cursor-not-allowed bg-surface-2 text-text-muted",
                   )}
-                >
-                  Sign Up
+                  >
+                  {isSubmitting ? <LoaderCircle size={16} className="animate-spin" aria-label="Submitting" /> : "Sign Up"}
                 </motion.button>
               </motion.div>
             )}
@@ -127,7 +137,7 @@ export function HeroSignup() {
               className="shrink-0"
             >
               <Link
-                href={`/survey?email=${encodeURIComponent(trimmedEmail)}`}
+                href={`/survey?email=${encodeURIComponent(trimmedEmail)}&source=landing`}
                 className="flex h-full items-center gap-2.5 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 ease-ui hover:bg-[color-mix(in_oklch,var(--color-surface-dark),white_8%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20"
               >
                 Help shape Miora
@@ -137,6 +147,7 @@ export function HeroSignup() {
           ) : null}
         </AnimatePresence>
       </motion.div>
+      {error ? <p role="alert" className="mt-2 text-xs text-clay">{error}</p> : null}
     </form>
   );
 }
