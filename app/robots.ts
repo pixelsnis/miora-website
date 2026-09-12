@@ -5,7 +5,7 @@ const privatePaths = [...PRIVATE_PATHS];
 
 /**
  * Split stance: search + citation retrieval allowed, model-training crawlers blocked.
- * Survey and design-study routes stay disallowed for every bot.
+ * Survey stays disallowed for every bot.
  */
 export default function robots(): MetadataRoute.Robots {
   const trainingBots = [

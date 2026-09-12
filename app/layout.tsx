@@ -11,9 +11,9 @@ import {
   SITE_NAME,
   SITE_TITLE,
 } from "@/lib/site";
-import { PostHogPageview } from "./posthog-pageview";
-import { SiteFooter } from "./site-footer";
-import { SiteHeader } from "./site-header";
+import { PostHogPageview } from "@/components/site/posthog-pageview";
+import { SiteFooter } from "@/components/site/site-footer";
+import { SiteHeader } from "@/components/site/site-header";
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),

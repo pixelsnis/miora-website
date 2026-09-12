@@ -29,7 +29,7 @@ export const SITE_TAGLINE =
   "Miora aligns agents with project knowledge while you keep building.";
 
 /**
- * Standalone 25–50 word definition. Must match visible homepage copy.
+ * Canonical SEO and structured-data definition.
  */
 export const SITE_DEFINITION =
   "Miora is self-maintaining knowledge for AI agents. It keeps a user-owned filesystem of ordinary Markdown files aligned across local and cloud agents, so you stop re-explaining existing work.";
@@ -39,30 +39,30 @@ export const SITE_DESCRIPTION =
   "Miora is self-maintaining knowledge for AI agents: a user-owned Markdown filesystem that stays aligned across local and cloud. Sign up for early access.";
 
 export const FEATURE_HEADING =
-  "Self-maintaining knowledge for every agent.";
+  "Coherent project knowledge for every agent.";
 
 export const FEATURE_INTRO =
-  "A knowledge base that isn’t maintained is worse than no knowledge base at all. Miora keeps yours self-maintaining across local and cloud agents while you keep building.";
+  "A knowledge base that isn’t maintained is worse than no knowledge base at all. Miora maintains yours quietly while you keep building.";
 
 export const FEATURE_CARDS = [
   {
     title: "One command.",
     description:
-      "Link a project working directory to your Vault. Project knowledge then stays self-maintaining as ordinary files your agents can explore.",
+      "Run a single command in your project’s working directory. Your project knowledge will now be autonomously maintained.",
     imageAlt:
       "Terminal linking a project working directory to a Miora Vault",
   },
   {
     title: "Any agent.",
     description:
-      "Local agents use the filesystem. Cloud agents reach the same self-maintaining Vault through Miora Cloud — ChatGPT, Claude, and other MCP-compatible tools.",
+      "Miora works with every agent on your computer. No MCP, no connector, just a single CLI tool.",
     imageAlt:
       "Local and cloud agents connecting to one shared Miora Vault",
   },
   {
     title: "It’s all markdown.",
     description:
-      "Knowledge is Markdown and normal files on disk. Open them in any editor, Obsidian, or Finder. Leave anytime — no proprietary knowledge format.",
+      "The secret sauce is just a folder with markdown. No proprietary knowledge format to be trapped inside.",
     imageAlt:
       "Markdown files representing a human-readable Miora Vault",
   },
@@ -82,6 +82,4 @@ export const ORGANIZATION_SAME_AS = [
 
 export const PRIVATE_PATHS = [
   "/survey",
-  "/footer-design",
-  "/footer-1-variants",
 ] as const;

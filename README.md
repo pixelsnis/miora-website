@@ -52,7 +52,7 @@ NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
 Enable cookieless tracking in the matching PostHog US project before deploying.
 See [docs/analytics.md](docs/analytics.md) for the event and privacy contract.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You can start editing the page by modifying `app/(site)/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
