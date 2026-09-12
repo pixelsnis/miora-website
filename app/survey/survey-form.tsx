@@ -511,7 +511,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
                 Primary workflow
               </FieldLegend>
               <RadioGroup
-                value={state.workflowPrimary ?? undefined}
+                value={state.workflowPrimary}
                 onValueChange={(value) => {
                   update("workflowPrimary", value as Workflow)
                   if (state.workflowSecondary === value) update("workflowSecondary", null)
@@ -614,35 +614,48 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
               description="Select all the structures that sound like your project."
             />
             <FieldSet>
-              <FieldLegend variant="label" className="sr-only">
+              <FieldLegend variant="label" className="sr-only" id="survey-knowledge-org-legend">
                 Knowledge organization
               </FieldLegend>
-              <ToggleGroup
-                multiple
-                value={state.knowledgeOrganization}
-                onValueChange={(value) => update("knowledgeOrganization", value)}
+              <div
+                role="group"
+                aria-labelledby="survey-knowledge-org-legend"
                 className="survey-choice-grid w-full"
-                spacing={2}
               >
-                {organization.map((item, index) => (
-                  <ToggleGroupItem
-                    key={item.value}
-                    value={item.value}
-                    variant="outline"
-                    className="survey-choice-card items-stretch justify-start text-left data-pressed:border-ink data-pressed:bg-surface-1 data-pressed:text-ink"
-                  >
-                    <ChoiceCardBody
-                      mark={
-                        <span className="survey-structure-letter">
-                          {String.fromCharCode(65 + index)}
-                        </span>
-                      }
-                      title={item.value}
-                      diagram={item.diagram}
-                    />
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
+                {organization.map((item, index) => {
+                  const checked = state.knowledgeOrganization.includes(item.value)
+                  return (
+                    <FieldLabel
+                      key={item.value}
+                      className={cn(
+                        "survey-choice-card w-full",
+                        checked && "is-selected"
+                      )}
+                    >
+                      <ChoiceCardBody
+                        mark={
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(next) =>
+                              update(
+                                "knowledgeOrganization",
+                                toggleInList(
+                                  state.knowledgeOrganization,
+                                  item.value,
+                                  Boolean(next)
+                                )
+                              )
+                            }
+                            aria-label={item.value}
+                          />
+                        }
+                        title={`${String.fromCharCode(65 + index)}. ${item.value}`}
+                        diagram={item.diagram}
+                      />
+                    </FieldLabel>
+                  )
+                })}
+              </div>
             </FieldSet>
           </section>
 
