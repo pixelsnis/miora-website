@@ -189,6 +189,23 @@ function toggleInList(list: string[], value: string, checked: boolean) {
   return checked ? [...new Set([...list, value])] : list.filter((item) => item !== value)
 }
 
+function RequiredMark({ className }: { className?: string }) {
+  return (
+    <span className={cn("font-normal text-moss", className)} aria-hidden="true">
+      *
+    </span>
+  )
+}
+
+function RequiredIndicator() {
+  return (
+    <>
+      <RequiredMark className="ml-0.5" />
+      <span className="sr-only"> (required)</span>
+    </>
+  )
+}
+
 function ChoiceDiagram({ children }: { children: string }) {
   return (
     <pre aria-hidden="true" className="survey-card-diagram">
@@ -228,10 +245,12 @@ function QuestionHeading({
   number,
   title,
   description,
+  required = true,
 }: {
   number: string
   title: string
   description?: string
+  required?: boolean
 }) {
   return (
     <div className="flex max-w-[60ch] flex-col gap-2">
@@ -241,6 +260,7 @@ function QuestionHeading({
         className="text-balance text-h3 font-semibold tracking-[-0.025em] text-ink"
       >
         {title}
+        {required ? <RequiredIndicator /> : null}
       </h2>
       {description ? (
         <p className="text-pretty text-sm leading-6 text-text-secondary">{description}</p>
@@ -303,6 +323,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
               className="text-balance text-h3 font-semibold tracking-[-0.025em] text-ink"
             >
               Name and email
+              <RequiredIndicator />
             </h2>
             <FieldGroup>
               <div className="flex flex-col gap-4">
@@ -705,7 +726,10 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
               </div>
               <FieldError>{errors.ownership}</FieldError>
               <div className="flex flex-col gap-3 border-t border-line pt-6">
-                <FieldLabel>What usually happens over time?</FieldLabel>
+                <FieldLabel>
+                  What usually happens over time?
+                  <RequiredIndicator />
+                </FieldLabel>
                 <ToggleGroup
                   id="survey-maintenance"
                   value={state.knowledgeMaintenance ? [state.knowledgeMaintenance] : []}
@@ -735,6 +759,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
           <section className="flex flex-col gap-6" aria-labelledby="question-8">
             <QuestionHeading
               number="08"
+              required={false}
               title="You return to a project after six months. Where do you look to understand what happened and why?"
               description="Leave this completely open. We want to learn what you actually trust as a source of truth."
             />
