@@ -1,6 +1,7 @@
 import { ComingSoon } from "./coming-soon";
 import { FeatureCards } from "./feature-cards";
 import { HeroIllustration } from "./hero-illustration";
+import { HeroSignup } from "./hero-signup";
 
 export default function Home() {
   return (
@@ -18,29 +19,7 @@ export default function Home() {
             project knowledge while you keep building.
           </h1>
           <p className="mt-3 font-mono text-sm leading-6">[in development]</p>
-          <div
-            className="mt-2 flex w-full border border-line"
-            aria-label="Early access signup placeholder"
-          >
-            <label htmlFor="hero-email" className="sr-only">
-              Email address
-            </label>
-            <input
-              id="hero-email"
-              name="email"
-              type="email"
-              placeholder="winger@greendale.edu"
-              disabled
-              className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-text-muted outline-none placeholder:text-text-muted disabled:cursor-not-allowed"
-            />
-            <button
-              type="button"
-              disabled
-              className="shrink-0 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed"
-            >
-              Sign Up
-            </button>
-          </div>
+          <HeroSignup />
         </div>
         <HeroIllustration />
       </section>
