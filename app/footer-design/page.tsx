@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "./footer-studies.css";
 import { MeadowFooter } from "./meadow-footer";
 import { MonumentFooter } from "./monument-footer";
@@ -36,23 +35,7 @@ const studies = [
 
 export default function FooterDesignPage() {
   return (
-    <main className="min-h-screen bg-background text-ink">
-      <header className="sticky top-0 z-50 flex h-[53px] items-center justify-between bg-background/95 px-4 text-sm font-semibold backdrop-blur-sm">
-        <Link href="/" className="hover:text-text-secondary">
-          Miora
-        </Link>
-        <nav aria-label="Studies" className="hidden items-center gap-6 text-text-muted md:flex">
-          {studies.map((study) => (
-            <a key={study.id} href={`#${study.id}`} className="hover:text-ink">
-              {study.number}
-            </a>
-          ))}
-        </nav>
-        <span className="font-mono text-[11px] font-normal text-text-muted">
-          Internal
-        </span>
-      </header>
-
+    <main className="bg-background text-ink">
       <section className="mx-auto max-w-[720px] px-4 py-16 sm:px-8 sm:py-20">
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-text-muted">
           Footer studies

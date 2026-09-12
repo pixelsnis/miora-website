@@ -1,32 +1,10 @@
 import { ComingSoon } from "./coming-soon";
 import { FeatureCards } from "./feature-cards";
 import { HeroIllustration } from "./hero-illustration";
-import { SiteFooter } from "./site-footer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background text-ink">
-      <header className="sticky top-0 z-50 flex h-[53px] items-center justify-between bg-background/95 px-4 text-sm font-semibold backdrop-blur-sm">
-        <span>Miora</span>
-        <nav
-          aria-label="Primary navigation"
-          className="absolute left-1/2 hidden -translate-x-1/2 items-center text-text-muted md:flex"
-        >
-          <span className="w-[120px] text-center" aria-disabled="true">
-            Docs
-          </span>
-          <span className="w-[120px] text-center" aria-disabled="true">
-            Features
-          </span>
-          <span className="w-[120px] text-center" aria-disabled="true">
-            Cloud
-          </span>
-        </nav>
-        <a href="#coming-soon" className="text-text-muted hover:text-ink">
-          Coming Soon
-        </a>
-      </header>
-
+    <main className="bg-background text-ink">
       <section
         className="mx-auto flex max-h-[90vh] min-h-0 w-full max-w-[1280px] flex-col justify-center px-4 pb-8 pt-12 sm:px-8 lg:px-[72px] lg:py-12"
         aria-labelledby="hero-heading"
@@ -69,7 +47,6 @@ export default function Home() {
 
       <FeatureCards />
       <ComingSoon />
-      <SiteFooter />
     </main>
   );
 }
