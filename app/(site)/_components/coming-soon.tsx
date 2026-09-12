@@ -8,6 +8,7 @@ import { useState } from "react";
 import { cn } from "cn";
 import { submitLandingEmail } from "@/app/_actions";
 import { captureEvent } from "@/lib/analytics/client";
+import { CursorFollow, CursorFollowTarget } from "./cursor-follow";
 import { Reveal } from "./reveal";
 import { SignupField } from "./signup-field";
 
@@ -131,19 +132,23 @@ export function ComingSoon() {
           className="material-drift object-cover"
         />
         <div className="absolute inset-0 bg-dusty-blue mix-blend-color" />
-        <div className="absolute left-1/2 top-1/2 flex w-[240px] -translate-x-1/2 -translate-y-1/2 flex-col items-start gap-2 rounded-[10px] bg-white px-4 py-3 shadow-coming-soon">
-          <p className="w-full font-mono text-sm font-semibold leading-[1.5] tracking-[-0.35px] text-ink">
-            <span className="font-normal text-dusty-blue">❯</span>
-            {` miora when`}
-            <span
-              className="caret-blink ml-px inline-block h-[0.9em] w-px translate-y-[0.08em] bg-ink"
-              aria-hidden
-            />
-          </p>
-          <p className="w-full font-mono text-[12px] leading-[1.5] tracking-[-0.3px] text-text-muted">
-            Coming soon.
-          </p>
-        </div>
+        <CursorFollow className="absolute inset-0">
+          <div className="absolute left-1/2 top-1/2 w-[240px] -translate-x-1/2 -translate-y-1/2">
+            <CursorFollowTarget className="flex w-full flex-col items-start gap-2 rounded-[10px] bg-white px-4 py-3 shadow-coming-soon">
+              <p className="w-full font-mono text-sm font-semibold leading-[1.5] tracking-[-0.35px] text-ink">
+                <span className="font-normal text-dusty-blue">❯</span>
+                {` miora when`}
+                <span
+                  className="caret-blink ml-px inline-block h-[0.9em] w-px translate-y-[0.08em] bg-ink"
+                  aria-hidden
+                />
+              </p>
+              <p className="w-full font-mono text-[12px] leading-[1.5] tracking-[-0.3px] text-text-muted">
+                Coming soon.
+              </p>
+            </CursorFollowTarget>
+          </div>
+        </CursorFollow>
       </div>
     </section>
   );

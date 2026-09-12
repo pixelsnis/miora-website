@@ -298,15 +298,6 @@
   }
 }
 
-@keyframes quiet-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
 @keyframes caret-blink {
   0%,
   46% {
@@ -369,9 +360,6 @@
   animation: material-drift 32s var(--ease-move) alternate infinite;
 }
 
-.quiet-float {
-  animation: quiet-float 9s var(--ease-move) infinite;
-}
 
 .caret-blink {
   animation: caret-blink 1.05s steps(1, end) infinite;
@@ -466,7 +454,6 @@
   }
 
   .material-drift,
-  .quiet-float,
   .caret-blink {
     animation: none;
   }

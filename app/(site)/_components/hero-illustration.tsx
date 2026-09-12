@@ -11,7 +11,12 @@ import Image from "next/image";
 import { Check, Folder, GenerateFile } from "griddy-icons";
 import { ThinkingOrb } from "thinking-orbs";
 import { animate } from "motion";
-import { motion, useInView, useReducedMotion } from "motion/react";
+import {
+  motion,
+  useInView,
+  useReducedMotion,
+} from "motion/react";
+import { CursorFollow, CursorFollowTarget } from "./cursor-follow";
 import {
   EASE_OUT,
   ignoreAbort,
@@ -518,7 +523,7 @@ export function HeroIllustration() {
   }, [play]);
 
   return (
-    <div
+    <CursorFollow
       ref={rootRef}
       className="hero-art relative h-[clamp(15rem,38vh,29.6875rem)] min-h-0 w-full shrink select-none overflow-hidden bg-surface-dark"
       aria-label="Several AI agents coordinate updates to a shared project knowledge folder"
@@ -536,7 +541,7 @@ export function HeroIllustration() {
       </div>
 
       <div className="knowledge-card absolute left-1/2 top-1/2 w-[270px] -translate-x-1/2 -translate-y-1/2">
-        <div className="quiet-float overflow-hidden rounded-[10px] bg-background pt-0.5 shadow-widget">
+        <CursorFollowTarget className="overflow-hidden rounded-[10px] bg-background pt-0.5 shadow-widget">
           <div className="flex items-center gap-1.5 p-2 font-mono text-sm text-ink">
             <Folder size={21} className={iconClassName} aria-hidden="true" />
             <span>knowledge/</span>
@@ -568,8 +573,8 @@ export function HeroIllustration() {
             </motion.span>
             <span>Auto</span>
           </div>
-        </div>
+        </CursorFollowTarget>
       </div>
-    </div>
+    </CursorFollow>
   );
 }

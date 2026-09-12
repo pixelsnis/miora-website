@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ConnectivityTenancy, FileText, Terminal } from "griddy-icons";
 import { useInView } from "motion/react";
+import { CursorFollow, CursorFollowTarget } from "./cursor-follow";
 import { FEATURE_CARDS, FEATURE_HEADING, FEATURE_INTRO } from "@/lib/site";
 import { AnyAgentWidget } from "./any-agent-widget";
 import { MarkdownWidget } from "./markdown-widget";
@@ -125,17 +126,24 @@ function FeatureCardItem({
         />
         <div className="feature-veil pointer-events-none absolute inset-0" />
         {card.widget ? (
-          <ViewThatFits className="feature-widget pointer-events-none absolute inset-0" maxWidthFraction={0.7}>
-            {card.widget === "one-command" ? (
-              <OneCommandWidget play={play} />
-            ) : null}
-            {card.widget === "any-agent" ? (
-              <AnyAgentWidget play={play} />
-            ) : null}
-            {card.widget === "markdown" ? (
-              <MarkdownWidget play={play} />
-            ) : null}
-          </ViewThatFits>
+          <CursorFollow className="absolute inset-0">
+            <CursorFollowTarget className="absolute inset-0">
+              <ViewThatFits
+                className="feature-widget pointer-events-none absolute inset-0"
+                maxWidthFraction={0.7}
+              >
+                {card.widget === "one-command" ? (
+                  <OneCommandWidget play={play} />
+                ) : null}
+                {card.widget === "any-agent" ? (
+                  <AnyAgentWidget play={play} />
+                ) : null}
+                {card.widget === "markdown" ? (
+                  <MarkdownWidget play={play} />
+                ) : null}
+              </ViewThatFits>
+            </CursorFollowTarget>
+          </CursorFollow>
         ) : null}
       </div>
       <div className="flex flex-col items-start gap-2.5">
