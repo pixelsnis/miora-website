@@ -156,7 +156,7 @@ export function HeroSignup() {
               <Link
                 href={`/survey?resume=${encodeURIComponent(resumeToken)}&source=landing`}
                 onClick={() => captureEvent("survey_cta_clicked", { form_location: "hero" })}
-                className="flex h-full items-center gap-2.5 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 ease-ui hover:bg-[color-mix(in_oklch,var(--color-surface-dark),white_8%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20"
+                className="flex h-full items-center gap-2.5 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 ease-ui hover:bg-[color-mix(in_oklch,var(--color-surface-dark),var(--color-white)_8%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20"
               >
                 Help shape Miora
                 <ArrowRight size={21} className="size-[21px] shrink-0" />

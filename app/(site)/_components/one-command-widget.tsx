@@ -125,7 +125,7 @@ export function OneCommandWidget({ play }: { play: boolean }) {
 
   return (
     <div
-      className="box-border w-[240pt] whitespace-nowrap rounded-2xl bg-background px-[16pt] py-[12pt] shadow-[0_24px_24px_rgba(0,0,0,.25),0_55px_33px_rgba(0,0,0,.15),0_98px_39px_rgba(0,0,0,.04)]"
+      className="box-border w-[240pt] whitespace-nowrap rounded-2xl bg-background px-[16pt] py-[12pt] shadow-widget"
       aria-label="miora init. Project name VirtuGood 6500. Link this directory? [y]. Vault linked. Ready."
     >
       <p className="flex items-baseline gap-1.5 font-mono text-[12pt] font-semibold leading-normal text-ink">

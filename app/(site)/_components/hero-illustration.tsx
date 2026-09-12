@@ -260,7 +260,7 @@ function HeroRow({
               className="w-3 shrink-0 text-center font-mono text-xs leading-none"
               style={{
                 opacity: 0,
-                color: diff === "−" ? "#B4554A" : "#3F7A4A",
+                color: diff === "−" ? "var(--color-clay)" : "var(--color-moss)",
               }}
               aria-hidden="true"
             >
@@ -536,7 +536,7 @@ export function HeroIllustration() {
       </div>
 
       <div className="knowledge-card absolute left-1/2 top-1/2 w-[270px] -translate-x-1/2 -translate-y-1/2">
-        <div className="quiet-float overflow-hidden rounded-[10px] bg-background pt-0.5 shadow-[0_24px_24px_rgba(0,0,0,.25),0_55px_33px_rgba(0,0,0,.15),0_98px_39px_rgba(0,0,0,.04)]">
+        <div className="quiet-float overflow-hidden rounded-[10px] bg-background pt-0.5 shadow-widget">
           <div className="flex items-center gap-1.5 p-2 font-mono text-sm text-ink">
             <Folder size={21} className={iconClassName} aria-hidden="true" />
             <span>knowledge/</span>

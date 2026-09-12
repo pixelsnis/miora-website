@@ -136,7 +136,7 @@ function KnowledgeFolderRow({ play }: { play: boolean }) {
     "flex items-center gap-2 bg-background px-4 py-3.5";
 
   return (
-    <div className="absolute left-1/2 top-1/2 z-20 w-[190pt] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[10px] bg-background font-mono text-[14px] text-ink shadow-[0_24px_24px_rgba(0,0,0,.25),0_55px_33px_rgba(0,0,0,.15),0_98px_39px_rgba(0,0,0,.04)]">
+    <div className="absolute left-1/2 top-1/2 z-20 w-[190pt] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[10px] bg-background font-mono text-[14px] text-ink shadow-widget">
       <WipeReplace
         ref={wipeRef}
         idleClassName={faceClassName}
@@ -163,7 +163,7 @@ function AgentBadge({
     <span className={className}>
       <span
         ref={driftRef}
-        className="flex size-[38pt] items-center justify-center rounded-full bg-background shadow-[0_8px_16px_rgba(0,0,0,.18),0_2px_4px_rgba(0,0,0,.08)]"
+        className="flex size-[38pt] items-center justify-center rounded-full bg-background shadow-agent"
       >
         <img src={src} alt="" width={28} height={28} className="size-7" />
         <span className="sr-only">{label}</span>
@@ -331,7 +331,7 @@ export function AnyAgentWidget({ play }: { play: boolean }) {
             y1={agent.rest.y}
             x2={FOLDER.x}
             y2={FOLDER.y}
-            stroke="white"
+            stroke="var(--color-white)"
             strokeOpacity="0.85"
             strokeWidth="1.5"
           />

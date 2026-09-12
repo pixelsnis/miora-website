@@ -85,7 +85,7 @@ export function ComingSoon() {
               <Link
                 href={`/survey?resume=${encodeURIComponent(resumeToken)}&source=landing`}
                 onClick={() => captureEvent("survey_cta_clicked", { form_location: "coming_soon" })}
-                className="flex shrink-0 items-center gap-2 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-[var(--duration-micro)] ease-ui hover:bg-[color-mix(in_oklch,var(--color-surface-dark),white_8%)]"
+                className="flex shrink-0 items-center gap-2 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-[var(--duration-micro)] ease-ui hover:bg-[color-mix(in_oklch,var(--color-surface-dark),var(--color-white)_8%)]"
               >
                 Help shape Miora <ArrowRight size={18} />
               </Link>
@@ -131,7 +131,7 @@ export function ComingSoon() {
           className="material-drift object-cover"
         />
         <div className="absolute inset-0 bg-dusty-blue mix-blend-color" />
-        <div className="absolute left-1/2 top-1/2 flex w-[240px] -translate-x-1/2 -translate-y-1/2 flex-col items-start gap-2 rounded-[10px] bg-white px-4 py-3 shadow-[0_7px_7.5px_rgba(0,0,0,0.1),0_26px_13px_rgba(0,0,0,0.09),0_59px_18px_rgba(0,0,0,0.05),0_106px_21px_rgba(0,0,0,0.01)]">
+        <div className="absolute left-1/2 top-1/2 flex w-[240px] -translate-x-1/2 -translate-y-1/2 flex-col items-start gap-2 rounded-[10px] bg-white px-4 py-3 shadow-coming-soon">
           <p className="w-full font-mono text-sm font-semibold leading-[1.5] tracking-[-0.35px] text-ink">
             <span className="font-normal text-dusty-blue">❯</span>
             {` miora when`}

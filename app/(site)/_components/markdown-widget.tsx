@@ -136,7 +136,7 @@ export function MarkdownWidget({ play }: { play: boolean }) {
 
   return (
     <div
-      className="relative w-[240pt] overflow-hidden rounded-[10px] bg-background pt-0.5 shadow-[0_24px_24px_rgba(0,0,0,.25),0_55px_33px_rgba(0,0,0,.15),0_98px_39px_rgba(0,0,0,.04)]"
+      className="relative w-[240pt] overflow-hidden rounded-[10px] bg-background pt-0.5 shadow-widget"
       aria-label="Markdown files product-principles.md, rfc-014.md, and onboarding.md"
     >
       <div className="flex border-b border-line-subtle px-2">
