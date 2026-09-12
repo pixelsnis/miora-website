@@ -62,6 +62,9 @@ export function ComingSoon() {
           >
             Coming soon.
           </h2>
+          <p className="text-center text-sm leading-[1.5] text-text-secondary">
+            Early access to self-maintaining knowledge for AI agents.
+          </p>
           <p className="font-mono text-sm leading-[1.5] text-ink">
             [in development]
           </p>

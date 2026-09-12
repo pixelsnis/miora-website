@@ -4,22 +4,51 @@ import "@fontsource/aileron/600.css";
 import "@fontsource/geist-mono/400.css";
 import "@fontsource/geist-mono/600.css";
 import "./globals.css";
+import {
+  getSiteUrl,
+  OG_IMAGE,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TITLE,
+} from "@/lib/site";
 import { PostHogPageview } from "./posthog-pageview";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
 
 export const metadata: Metadata = {
-  title: "Miora",
-  description: "Miora aligns agents with project knowledge while you keep building.",
+  metadataBase: getSiteUrl(),
+  title: {
+    default: SITE_TITLE,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  category: "technology",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   openGraph: {
-    images: [
-      {
-        url: "/images/og.webp",
-        width: 1200,
-        height: 630,
-        alt: "Miora",
-      },
-    ],
+    type: "website",
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    locale: "en_US",
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [OG_IMAGE],
+    creator: "@pixelsnis",
   },
 };
 

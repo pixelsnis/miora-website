@@ -3,8 +3,10 @@ import { loadSurveyFromResumeToken } from "@/app/actions"
 import SurveyForm from "./survey-form"
 
 export const metadata: Metadata = {
-  title: "Early access survey | Miora",
-  description: "Tell Miora how you work with agents and project knowledge.",
+  title: "Early access survey",
+  description:
+    "Tell Miora how you work across local and cloud agents and where project knowledge lives.",
+  robots: { index: false, follow: false },
 }
 
 type SurveyPageProps = {

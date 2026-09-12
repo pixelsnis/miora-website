@@ -16,6 +16,17 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Site URL (SEO)
+
+Canonical URLs, Open Graph links, `sitemap.xml`, `robots.txt`, JSON-LD, and
+`llms.txt` use the public site origin. Set this in production:
+
+```text
+NEXT_PUBLIC_SITE_URL=https://your-production-domain
+```
+
+Without it, metadata falls back to `https://miora.invalid` at build time.
+
 ## Early access survey
 
 The landing signup and survey submit through Notion Server Actions. Configure these server-only variables in your deployment environment:

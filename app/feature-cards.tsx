@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import { ConnectivityTenancy, FileText, Terminal } from "griddy-icons";
 import { useInView } from "motion/react";
+import { FEATURE_CARDS, FEATURE_HEADING, FEATURE_INTRO } from "@/lib/site";
 import { AnyAgentWidget } from "./any-agent-widget";
 import { MarkdownWidget } from "./markdown-widget";
 import { OneCommandWidget } from "./one-command-widget";
@@ -14,6 +15,7 @@ type FeatureCard = {
   icon: typeof Terminal;
   title: string;
   description: string;
+  imageAlt: string;
   widget?: "one-command" | "any-agent" | "markdown";
 };
 
@@ -21,26 +23,20 @@ const featureCards: FeatureCard[] = [
   {
     image: "/images/landing/feature-cards/card-01.webp",
     icon: Terminal,
-    title: "One command.",
     widget: "one-command",
-    description:
-      "Run a single command in your project’s working directory. Your project knowledge will now be autonomously maintained.",
+    ...FEATURE_CARDS[0],
   },
   {
     image: "/images/landing/feature-cards/card-03.webp",
     icon: ConnectivityTenancy,
-    title: "Any agent.",
     widget: "any-agent",
-    description:
-      "Miora works with every agent on your computer. No MCP, no connector, just a single CLI tool.",
+    ...FEATURE_CARDS[1],
   },
   {
     image: "/images/landing/feature-cards/card-02.webp",
     icon: FileText,
-    title: "It’s all markdown.",
     widget: "markdown",
-    description:
-      "The secret sauce is just a folder with markdown. No proprietary knowledge format to be trapped inside.",
+    ...FEATURE_CARDS[2],
   },
 ];
 
@@ -58,7 +54,7 @@ function FeatureCardItem({ card }: { card: FeatureCard }) {
       >
         <Image
           src={card.image}
-          alt=""
+          alt={card.imageAlt}
           fill
           draggable={false}
           sizes="(min-width: 1280px) 368px, (min-width: 768px) calc((100vw - 96px) / 3), calc(100vw - 32px)"
@@ -104,11 +100,10 @@ export function FeatureCards() {
           id="feature-heading"
           className="text-h2 font-semibold text-ink"
         >
-          Coherent project knowledge for every agent.
+          {FEATURE_HEADING}
         </h2>
         <p className="text-[14px] leading-[1.5] text-text-secondary">
-          A knowledge base that isn’t maintained is worse than no knowledge base
-          at all. Miora maintains yours quietly while you keep building.
+          {FEATURE_INTRO}
         </p>
       </div>
 
