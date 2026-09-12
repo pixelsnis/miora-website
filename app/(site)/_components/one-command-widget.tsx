@@ -58,56 +58,58 @@ export function OneCommandWidget({ play }: { play: boolean }) {
     const { signal } = abort;
 
     const run = async () => {
-      setScene({
-        project: false,
-        typed: PROJECT_NAME.length,
-        link: false,
-        answer: "y",
-        vault: false,
-        ready: false,
-      });
-      await sleep(400, signal);
+      while (!signal.aborted) {
+        setScene({
+          project: false,
+          typed: PROJECT_NAME.length,
+          link: false,
+          answer: "y",
+          vault: false,
+          ready: false,
+        });
+        await sleep(400, signal);
 
-      setScene({
-        project: true,
-        typed: 0,
-        link: false,
-        answer: "yn",
-        vault: false,
-        ready: false,
-      });
-      await sleep(200, signal);
+        setScene({
+          project: true,
+          typed: 0,
+          link: false,
+          answer: "yn",
+          vault: false,
+          ready: false,
+        });
+        await sleep(200, signal);
 
-      const typing = animate(0, PROJECT_NAME.length, {
-        duration: 1.6,
-        ease: "linear",
-        onUpdate: (value) => {
-          setScene((current) => ({
-            ...current,
-            typed: Math.min(PROJECT_NAME.length, Math.floor(value)),
-          }));
-        },
-      });
-      signal.addEventListener("abort", () => typing.stop(), { once: true });
-      await typing;
-      if (signal.aborted) {
-        return;
+        const typing = animate(0, PROJECT_NAME.length, {
+          duration: 1.6,
+          ease: "linear",
+          onUpdate: (value) => {
+            setScene((current) => ({
+              ...current,
+              typed: Math.min(PROJECT_NAME.length, Math.floor(value)),
+            }));
+          },
+        });
+        signal.addEventListener("abort", () => typing.stop(), { once: true });
+        await typing;
+        if (signal.aborted) {
+          return;
+        }
+
+        setScene((current) => ({ ...current, typed: PROJECT_NAME.length }));
+        await sleep(250, signal);
+
+        setScene((current) => ({ ...current, link: true, answer: "yn" }));
+        await sleep(500, signal);
+
+        setScene((current) => ({ ...current, answer: "y" }));
+        await sleep(300, signal);
+
+        setScene((current) => ({ ...current, vault: true }));
+        await sleep(450, signal);
+
+        setScene((current) => ({ ...current, ready: true }));
+        await sleep(1600, signal);
       }
-
-      setScene((current) => ({ ...current, typed: PROJECT_NAME.length }));
-      await sleep(250, signal);
-
-      setScene((current) => ({ ...current, link: true, answer: "yn" }));
-      await sleep(500, signal);
-
-      setScene((current) => ({ ...current, answer: "y" }));
-      await sleep(300, signal);
-
-      setScene((current) => ({ ...current, vault: true }));
-      await sleep(450, signal);
-
-      setScene((current) => ({ ...current, ready: true }));
-      await sleep(1300, signal);
     };
 
     run().catch((error: unknown) => {
@@ -140,6 +142,12 @@ export function OneCommandWidget({ play }: { play: boolean }) {
           transition={FADE}
         >
           Project name <span>{">"}</span> {PROJECT_NAME.slice(0, scene.typed)}
+          {scene.project && scene.typed < PROJECT_NAME.length ? (
+            <span
+              className="caret-blink ml-px inline-block h-[0.85em] w-px translate-y-[0.08em] bg-ink"
+              aria-hidden
+            />
+          ) : null}
         </motion.p>
         <motion.p
           initial={false}

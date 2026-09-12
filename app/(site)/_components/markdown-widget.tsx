@@ -129,7 +129,7 @@ export function MarkdownWidget({ play }: { play: boolean }) {
 
     const id = window.setInterval(() => {
       setSections((current) => mutate(current));
-    }, 520);
+    }, 880);
 
     return () => window.clearInterval(id);
   }, [play, shouldReduceMotion]);

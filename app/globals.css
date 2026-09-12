@@ -27,6 +27,13 @@
   --font-mono: "Geist Mono", monospace;
 
   --ease-ui: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-move: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-press: 120ms;
+  --duration-micro: 180ms;
+  --duration-ui: 240ms;
+  --duration-enter: 560ms;
+  --duration-hero: 800ms;
+
 
   --text-base: 0.875rem;
   --text-base--line-height: 1.55;
@@ -109,6 +116,12 @@
   }
   html {
     @apply font-sans;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 }
 
@@ -303,5 +316,207 @@
 @media (max-width: 640px) {
   .survey-choice-card {
     min-height: 9.5rem;
+  }
+}
+
+@keyframes material-drift {
+  from {
+    transform: scale(1.04);
+  }
+  to {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes quiet-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes caret-blink {
+  0%,
+  46% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-art-in {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.hero-rise {
+  animation: fade-rise var(--duration-enter) var(--ease-ui) both;
+}
+
+.hero-rise-status {
+  animation-delay: 70ms;
+}
+
+.hero-rise-form {
+  animation-delay: 140ms;
+}
+
+.hero-art-in {
+  animation: hero-art-in var(--duration-hero) var(--ease-ui) 200ms both;
+}
+
+.material-drift {
+  animation: material-drift 32s var(--ease-move) alternate infinite;
+}
+
+.quiet-float {
+  animation: quiet-float 9s var(--ease-move) infinite;
+}
+
+.caret-blink {
+  animation: caret-blink 1.05s steps(1, end) infinite;
+}
+
+.nav-underline {
+  position: relative;
+}
+
+.nav-underline::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -3px;
+  height: 1px;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: currentColor;
+  transition: transform var(--duration-micro) var(--ease-ui);
+}
+
+.signup-submit {
+  transition:
+    background-color var(--duration-micro) var(--ease-ui),
+    color var(--duration-micro) var(--ease-ui),
+    transform var(--duration-press) var(--ease-ui),
+    opacity var(--duration-micro) var(--ease-ui);
+}
+
+.signup-submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.feature-veil {
+  background: color-mix(in srgb, var(--color-ink) 18%, transparent);
+  opacity: 1;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  transition:
+    opacity var(--duration-ui) var(--ease-ui),
+    backdrop-filter var(--duration-ui) var(--ease-ui),
+    -webkit-backdrop-filter var(--duration-ui) var(--ease-ui);
+}
+
+.feature-widget {
+  opacity: 0.78;
+  transform: scale(0.985);
+  transition:
+    opacity var(--duration-ui) var(--ease-ui),
+    transform var(--duration-ui) var(--ease-ui);
+}
+
+.feature-media[data-inspecting="true"] .feature-veil {
+  opacity: 0;
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+}
+
+.feature-media[data-inspecting="true"] .feature-widget {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.social-icon {
+  transition:
+    color var(--duration-micro) var(--ease-ui),
+    transform var(--duration-micro) var(--ease-ui);
+}
+
+.footer-wordmark {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path var(--duration-hero) var(--ease-ui);
+}
+
+.footer-wordmark.is-in {
+  clip-path: inset(0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-underline:hover::after,
+  .nav-underline:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  .signup-submit[data-ready="true"]:hover {
+    background: color-mix(in oklch, var(--color-surface-dark), white 8%);
+  }
+
+  .social-icon:hover,
+  .social-icon:focus-visible {
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise,
+  .hero-art-in {
+    animation: fade-in 200ms var(--ease-ui) both;
+  }
+
+  .material-drift,
+  .quiet-float,
+  .caret-blink {
+    animation: none;
+  }
+
+  .footer-wordmark {
+    clip-path: none;
+    transition: none;
+  }
+
+  .feature-widget,
+  .signup-submit:active:not(:disabled),
+  .social-icon:hover,
+  .social-icon:focus-visible {
+    transform: none;
   }
 }

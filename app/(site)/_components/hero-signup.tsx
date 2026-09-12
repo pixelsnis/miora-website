@@ -92,8 +92,8 @@ export function HeroSignup() {
                   {trimmedEmail}
                 </p>
                 <motion.div
-                  initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={shouldReduceMotion ? false : { opacity: 0, transform: "scale(0.92)" }}
+                  animate={{ opacity: 1, transform: "scale(1)" }}
                   transition={{ ...fadeTransition, delay: shouldReduceMotion ? 0 : 0.06 }}
                   className="flex shrink-0 items-center bg-surface-2 px-5 py-2.5"
                   aria-hidden
@@ -122,15 +122,16 @@ export function HeroSignup() {
                   maxLength={200}
                   placeholder="winger@greendale.edu"
                   autoComplete="email"
-                  className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-ink outline-none placeholder:text-text-muted"
+                  className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-ink outline-none placeholder:text-text-muted focus-visible:ring-2 focus-visible:ring-ink/15 focus-visible:ring-inset"
                 />
                 <motion.button
                   layout
                   type="submit"
+                  data-ready={canSubmit ? "true" : undefined}
                   disabled={!canSubmit || isSubmitting}
                   transition={motionTransition}
                   className={cn(
-                    "shrink-0 px-5 py-2.5 text-sm font-semibold transition-colors duration-200 ease-ui",
+                    "signup-submit shrink-0 px-5 py-2.5 text-sm font-semibold",
                     canSubmit
                       ? "bg-surface-dark text-white"
                       : "cursor-not-allowed bg-surface-2 text-text-muted",
@@ -148,9 +149,9 @@ export function HeroSignup() {
             <motion.div
               key="help-shape"
               layout
-              initial={shouldReduceMotion ? false : { opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -12 }}
+              initial={shouldReduceMotion ? false : { opacity: 0, transform: "translateX(-12px)" }}
+              animate={{ opacity: 1, transform: "translateX(0px)" }}
+              exit={{ opacity: 0, transform: "translateX(-12px)" }}
               transition={{ ...fadeTransition, delay: shouldReduceMotion ? 0 : 0.05 }}
               className="shrink-0"
             >

@@ -531,41 +531,43 @@ export function HeroIllustration() {
           priority
           draggable={false}
           sizes="(max-width: 1280px) 100vw, 1136px"
-          className="object-cover"
+          className="material-drift object-cover"
         />
       </div>
 
-      <div className="knowledge-card absolute left-1/2 top-1/2 w-[270px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[10px] bg-background pt-0.5 shadow-[0_24px_24px_rgba(0,0,0,.25),0_55px_33px_rgba(0,0,0,.15),0_98px_39px_rgba(0,0,0,.04)]">
-        <div className="flex items-center gap-1.5 p-2 font-mono text-sm text-ink">
-          <Folder size={21} className={iconClassName} aria-hidden="true" />
-          <span>knowledge/</span>
-        </div>
-        <div className="pl-3.5">
-          {rows.map((row) => (
-            <HeroRow
-              key={row.id}
-              name={row.name}
-              kind={row.kind}
-              handleRef={rowRefs[row.id]}
-            />
-          ))}
-        </div>
-        <div className="flex items-center gap-1.5 border-t border-line-subtle p-2 text-xs text-moss">
-        <motion.span
-          initial={shouldReduceMotion ? false : { scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.35, ease: EASE_OUT }}
-          className="inline-flex size-5 shrink-0 items-center justify-center"
-          aria-hidden="true"
-        >
-          <ThinkingOrb
-            state="composing"
-            size={20}
-            className="shrink-0"
-            aria-hidden="true"
-          />
-        </motion.span>
-          <span>Auto</span>
+      <div className="knowledge-card absolute left-1/2 top-1/2 w-[270px] -translate-x-1/2 -translate-y-1/2">
+        <div className="quiet-float overflow-hidden rounded-[10px] bg-background pt-0.5 shadow-[0_24px_24px_rgba(0,0,0,.25),0_55px_33px_rgba(0,0,0,.15),0_98px_39px_rgba(0,0,0,.04)]">
+          <div className="flex items-center gap-1.5 p-2 font-mono text-sm text-ink">
+            <Folder size={21} className={iconClassName} aria-hidden="true" />
+            <span>knowledge/</span>
+          </div>
+          <div className="pl-3.5">
+            {rows.map((row) => (
+              <HeroRow
+                key={row.id}
+                name={row.name}
+                kind={row.kind}
+                handleRef={rowRefs[row.id]}
+              />
+            ))}
+          </div>
+          <div className="flex items-center gap-1.5 border-t border-line-subtle p-2 text-xs text-moss">
+            <motion.span
+              initial={shouldReduceMotion ? false : { transform: "scale(0.9)", opacity: 0 }}
+              animate={{ transform: "scale(1)", opacity: 1 }}
+              transition={{ duration: 0.35, ease: EASE_OUT }}
+              className="inline-flex size-5 shrink-0 items-center justify-center"
+              aria-hidden="true"
+            >
+              <ThinkingOrb
+                state="composing"
+                size={20}
+                className="shrink-0"
+                aria-hidden="true"
+              />
+            </motion.span>
+            <span>Auto</span>
+          </div>
         </div>
       </div>
     </div>

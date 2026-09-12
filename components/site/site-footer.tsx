@@ -1,4 +1,5 @@
 import { Threads, X } from "griddy-icons";
+import { FooterWordmark } from "./footer-wordmark";
 
 const THREADS_HREF = "https://www.threads.net/@pixelsnis";
 const X_HREF = "https://x.com/pixelsnis";
@@ -18,7 +19,7 @@ export function SiteFooter() {
             target="_blank"
             rel="noreferrer"
             aria-label="Threads"
-            className="text-text-muted transition-colors duration-200 ease-ui hover:text-ink focus-visible:text-ink focus-visible:outline-none"
+            className="social-icon text-text-muted hover:text-ink focus-visible:text-ink focus-visible:outline-none"
           >
             <Threads size={24} />
           </a>
@@ -27,20 +28,14 @@ export function SiteFooter() {
             target="_blank"
             rel="noreferrer"
             aria-label="X"
-            className="text-text-muted transition-colors duration-200 ease-ui hover:text-ink focus-visible:text-ink focus-visible:outline-none"
+            className="social-icon text-text-muted hover:text-ink focus-visible:text-ink focus-visible:outline-none"
           >
             <X size={24} />
           </a>
         </nav>
       </div>
       <div className="border-y border-line px-4 py-3 sm:px-8 lg:px-[72px]">
-        <p
-          className="select-none font-semibold leading-[0.82] tracking-[-0.07em] text-line"
-          style={{ fontSize: "clamp(4.5rem, 18vw, 13.75rem)" }}
-          aria-hidden
-        >
-          miora
-        </p>
+        <FooterWordmark />
       </div>
       <div className="px-4 py-4 sm:px-8 lg:px-[72px]">
         <p className="text-[12px] text-text-muted">© 2026 Miora</p>

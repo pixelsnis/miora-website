@@ -250,7 +250,7 @@ export function AnyAgentWidget({ play }: { play: boolean }) {
           launch(id, direction);
         }
 
-        await sleep(randomBetween(320, 620), signal);
+        await sleep(randomBetween(720, 1400), signal);
       }
     };
 

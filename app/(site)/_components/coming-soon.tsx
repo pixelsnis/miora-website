@@ -7,6 +7,7 @@ import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import { submitLandingEmail } from "@/app/_actions";
 import { captureEvent } from "@/lib/analytics/client";
+import { Reveal } from "./reveal";
 
 export function ComingSoon() {
   const [email, setEmail] = useState("");
@@ -54,7 +55,7 @@ export function ComingSoon() {
       className="flex min-h-[75vh] w-full flex-col items-center justify-center gap-8 bg-background py-16 sm:py-20 lg:py-0"
       aria-labelledby="coming-soon-heading"
     >
-      <div className="flex w-full max-w-[560px] flex-col items-center gap-4 px-4 sm:px-8 lg:px-0">
+      <Reveal className="flex w-full max-w-[560px] flex-col items-center gap-4 px-4 sm:px-8 lg:px-0">
         <div className="flex w-full flex-col items-center gap-2">
           <h2
             id="coming-soon-heading"
@@ -83,21 +84,22 @@ export function ComingSoon() {
             maxLength={200}
             disabled={submitted || isSubmitting}
             placeholder="winger@greendale.edu"
-            className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-text-muted outline-none placeholder:text-text-muted disabled:cursor-not-allowed"
+            className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-text-muted outline-none placeholder:text-text-muted focus-visible:ring-2 focus-visible:ring-ink/15 focus-visible:ring-inset disabled:cursor-not-allowed"
           />
           {submitted ? (
             <Link
               href={`/survey?resume=${encodeURIComponent(resumeToken)}&source=landing`}
               onClick={() => captureEvent("survey_cta_clicked", { form_location: "coming_soon" })}
-              className="flex shrink-0 items-center gap-2 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white"
+              className="flex shrink-0 items-center gap-2 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-[var(--duration-micro)] ease-ui hover:bg-[color-mix(in_oklch,var(--color-surface-dark),white_8%)]"
             >
               Help shape Miora <ArrowRight size={18} />
             </Link>
           ) : (
             <button
               type="submit"
+              data-ready={canSubmit ? "true" : undefined}
               disabled={!canSubmit || isSubmitting}
-              className="flex shrink-0 items-center justify-center gap-2 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="signup-submit flex shrink-0 items-center justify-center gap-2 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting ? (
                 <LoaderCircle
@@ -116,7 +118,7 @@ export function ComingSoon() {
             {error}
           </p>
         ) : null}
-      </div>
+      </Reveal>
 
       <div className="relative h-[240px] w-full shrink-0 select-none overflow-hidden sm:h-[280px] md:h-[360px]">
         <Image
@@ -125,13 +127,17 @@ export function ComingSoon() {
           fill
           draggable={false}
           sizes="100vw"
-          className="object-cover"
+          className="material-drift object-cover"
         />
         <div className="absolute inset-0 bg-dusty-blue mix-blend-color" />
         <div className="absolute left-1/2 top-1/2 flex w-[240px] -translate-x-1/2 -translate-y-1/2 flex-col items-start gap-2 rounded-[10px] bg-white px-4 py-3 shadow-[0_7px_7.5px_rgba(0,0,0,0.1),0_26px_13px_rgba(0,0,0,0.09),0_59px_18px_rgba(0,0,0,0.05),0_106px_21px_rgba(0,0,0,0.01)]">
           <p className="w-full font-mono text-sm font-semibold leading-[1.5] tracking-[-0.35px] text-ink">
             <span className="font-normal text-dusty-blue">❯</span>
             {` miora when`}
+            <span
+              className="caret-blink ml-px inline-block h-[0.9em] w-px translate-y-[0.08em] bg-ink"
+              aria-hidden
+            />
           </p>
           <p className="w-full font-mono text-[12px] leading-[1.5] tracking-[-0.3px] text-text-muted">
             Coming soon.
