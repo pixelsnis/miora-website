@@ -57,7 +57,7 @@ The hero headline is:
 
 Below it sits the monospace status label:
 
-> [early access]
+> [in development]
 
 The headline and label sit in a compact text block above a wide image-led composition. The hero should preserve the large amount of open space and the calm, left-aligned editorial feeling of the Figma frame.
 
