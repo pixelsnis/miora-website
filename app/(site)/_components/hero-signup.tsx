@@ -8,6 +8,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn } from "cn";
 import { submitLandingEmail } from "@/app/_actions";
 import { captureEvent } from "@/lib/analytics/client";
+import { SignupField } from "./signup-field";
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 const FADE = { duration: 0.22, ease: EASE_OUT };
@@ -72,7 +73,7 @@ export function HeroSignup() {
           layout
           transition={motionTransition}
           className={cn(
-            "flex min-w-0 border border-line",
+            "flex min-w-0",
             submitted ? "min-w-0 flex-1" : "w-full",
           )}
         >
@@ -110,20 +111,12 @@ export function HeroSignup() {
                 transition={fadeTransition}
                 className="flex min-w-0 flex-1"
               >
-                <label htmlFor="hero-email" className="sr-only">
-                  Email address
-                </label>
-                <input
-                  id="hero-email"
-                  name="email"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  maxLength={200}
-                  placeholder="winger@greendale.edu"
-                  autoComplete="email"
-                  className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-ink outline-none placeholder:text-text-muted focus-visible:ring-2 focus-visible:ring-ink/15 focus-visible:ring-inset"
-                />
+              <SignupField
+                id="hero-email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                inputClassName="text-ink"
+              >
                 <motion.button
                   layout
                   type="submit"
@@ -136,9 +129,14 @@ export function HeroSignup() {
                       ? "bg-surface-dark text-white"
                       : "cursor-not-allowed bg-surface-2 text-text-muted",
                   )}
-                  >
-                  {isSubmitting ? <LoaderCircle size={16} className="animate-spin" aria-label="Submitting" /> : "Sign Up"}
+                >
+                  {isSubmitting ? (
+                    <LoaderCircle size={16} className="animate-spin" aria-label="Submitting" />
+                  ) : (
+                    "Sign Up"
+                  )}
                 </motion.button>
+              </SignupField>
               </motion.div>
             )}
           </AnimatePresence>

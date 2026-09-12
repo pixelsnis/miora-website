@@ -5,9 +5,11 @@ import Link from "next/link";
 import { ArrowRight } from "griddy-icons";
 import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
+import { cn } from "cn";
 import { submitLandingEmail } from "@/app/_actions";
 import { captureEvent } from "@/lib/analytics/client";
 import { Reveal } from "./reveal";
+import { SignupField } from "./signup-field";
 
 export function ComingSoon() {
   const [email, setEmail] = useState("");
@@ -69,49 +71,48 @@ export function ComingSoon() {
         </div>
         <form
           onSubmit={handleSubmit}
-          className="flex w-full border border-line"
+          className="flex w-full"
           aria-label="Early access signup"
         >
-          <label htmlFor="coming-soon-email" className="sr-only">
-            Email address
-          </label>
-          <input
+          <SignupField
             id="coming-soon-email"
-            name="email"
-            type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            maxLength={200}
             disabled={submitted || isSubmitting}
-            placeholder="winger@greendale.edu"
-            className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-text-muted outline-none placeholder:text-text-muted focus-visible:ring-2 focus-visible:ring-ink/15 focus-visible:ring-inset disabled:cursor-not-allowed"
-          />
-          {submitted ? (
-            <Link
-              href={`/survey?resume=${encodeURIComponent(resumeToken)}&source=landing`}
-              onClick={() => captureEvent("survey_cta_clicked", { form_location: "coming_soon" })}
-              className="flex shrink-0 items-center gap-2 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-[var(--duration-micro)] ease-ui hover:bg-[color-mix(in_oklch,var(--color-surface-dark),white_8%)]"
-            >
-              Help shape Miora <ArrowRight size={18} />
-            </Link>
-          ) : (
-            <button
-              type="submit"
-              data-ready={canSubmit ? "true" : undefined}
-              disabled={!canSubmit || isSubmitting}
-              className="signup-submit flex shrink-0 items-center justify-center gap-2 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isSubmitting ? (
-                <LoaderCircle
-                  size={16}
-                  className="animate-spin"
-                  aria-label="Submitting"
-                />
-              ) : (
-                "Sign Up"
-              )}
-            </button>
-          )}
+            inputClassName="text-text-muted"
+          >
+            {submitted ? (
+              <Link
+                href={`/survey?resume=${encodeURIComponent(resumeToken)}&source=landing`}
+                onClick={() => captureEvent("survey_cta_clicked", { form_location: "coming_soon" })}
+                className="flex shrink-0 items-center gap-2 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-[var(--duration-micro)] ease-ui hover:bg-[color-mix(in_oklch,var(--color-surface-dark),white_8%)]"
+              >
+                Help shape Miora <ArrowRight size={18} />
+              </Link>
+            ) : (
+              <button
+                type="submit"
+                data-ready={canSubmit ? "true" : undefined}
+                disabled={!canSubmit || isSubmitting}
+                className={cn(
+                  "signup-submit shrink-0 px-5 py-2.5 text-sm font-semibold",
+                  canSubmit
+                    ? "bg-surface-dark text-white"
+                    : "cursor-not-allowed bg-surface-2 text-text-muted",
+                )}
+              >
+                {isSubmitting ? (
+                  <LoaderCircle
+                    size={16}
+                    className="animate-spin"
+                    aria-label="Submitting"
+                  />
+                ) : (
+                  "Sign Up"
+                )}
+              </button>
+            )}
+          </SignupField>
         </form>
         {error ? (
           <p role="alert" className="mt-2 w-full text-xs text-clay">
