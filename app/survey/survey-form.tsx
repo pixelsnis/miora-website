@@ -20,6 +20,7 @@ import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { submitSurvey } from "@/app/actions"
 import { emptySurveySubmission, validateSurvey, type SurveyErrors, type SurveySubmissionInput } from "@/lib/survey"
+import { captureEvent } from "@/lib/analytics"
 import { LoaderCircle } from "lucide-react"
 
 const agents = [
@@ -154,6 +155,29 @@ const errorKeyByState: Partial<Record<keyof SurveyState, keyof Errors>> = {
   sixMonthSourceOfTruth: "sourceOfTruth",
 }
 
+const surveySectionByError: Record<string, string> = {
+  name: "respondent",
+  email: "respondent",
+  agentsUsed: "q1",
+  workLocation: "q2",
+  workflow: "q3",
+  knowledgeLocations: "q4",
+  knowledgeOrganization: "q5",
+  preservedKnowledge: "q6",
+  ownership: "q7",
+  maintenance: "q7",
+  sourceOfTruth: "q8",
+  form: "form",
+}
+
+function invalidSurveySections(errors: SurveyErrors) {
+  return [...new Set(
+    Object.keys(errors)
+      .map((key) => surveySectionByError[key])
+      .filter((section): section is string => Boolean(section)),
+  )]
+}
+
 const initialState = (email: string, initialSurvey?: SurveySubmissionInput): SurveyState =>
   initialSurvey ?? emptySurveySubmission(email)
 
@@ -257,8 +281,21 @@ export default function SurveyForm({
   const [preservedNotice, setPreservedNotice] = React.useState(false)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [submitted, setSubmitted] = React.useState(false)
+  const viewedRef = React.useRef(false)
+  const startedRef = React.useRef(false)
+  const origin = fromLanding ? "landing" : "direct"
+
+  React.useEffect(() => {
+    if (viewedRef.current) return
+    viewedRef.current = true
+    captureEvent("survey_viewed", { origin })
+  }, [origin])
 
   const update = <K extends keyof SurveyState>(key: K, value: SurveyState[K]) => {
+    if (!startedRef.current && key !== "name" && key !== "email") {
+      startedRef.current = true
+      captureEvent("survey_started", { origin })
+    }
     setState((current) => ({ ...current, [key]: value }))
     const errorKey = errorKeyByState[key]
     if (errorKey) {
@@ -277,14 +314,23 @@ export default function SurveyForm({
     const nextErrors = validateSurvey(state)
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors)
+      captureEvent("survey_validation_failed", {
+        origin,
+        invalid_sections: invalidSurveySections(nextErrors),
+      })
       return
     }
     setErrors({})
     setIsSubmitting(true)
     const result = await submitSurvey(state, fromLanding)
     setIsSubmitting(false)
-    if (result.ok) setSubmitted(true)
-    else setErrors(result.errors ?? { form: result.message ?? "We couldn't save your response. Please try again." })
+    if (result.ok) {
+      captureEvent("survey_submission_succeeded", { origin })
+      setSubmitted(true)
+    } else {
+      captureEvent("survey_submission_failed", { origin, failure_type: "submission" })
+      setErrors(result.errors ?? { form: result.message ?? "We couldn't save your response. Please try again." })
+    }
   }
 
   const teamMaintained = state.teamMaintainedPercent

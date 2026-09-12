@@ -28,6 +28,19 @@ SURVEY_RESUME_SECRET=use-a-long-random-secret
 
 The Notion data source must contain `Name` (title), `Email` (email), and the eight rich-text properties documented in [docs/miora-early-access-survey.md](docs/miora-early-access-survey.md). `SURVEY_RESUME_SECRET` must be stable across deployments; changing it invalidates existing survey links. Local tests do not make requests to Notion.
 
+## Analytics
+
+The site sends minimal anonymous funnel events to PostHog. Configure these
+production build variables in the hosting provider:
+
+```text
+NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=ph_project_...
+NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+```
+
+Enable cookieless tracking in the matching PostHog US project before deploying.
+See [docs/analytics.md](docs/analytics.md) for the event and privacy contract.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

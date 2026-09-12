@@ -7,6 +7,7 @@ import { LoaderCircle } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn } from "cn";
 import { submitLandingEmail } from "./actions";
+import { captureEvent } from "@/lib/analytics";
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 const FADE = { duration: 0.22, ease: EASE_OUT };
@@ -34,15 +35,26 @@ export function HeroSignup() {
     if (!canSubmit || submitted || isSubmitting) return;
     setError("");
     setIsSubmitting(true);
+    captureEvent("early_access_signup_attempted", { form_location: "hero" });
     const result = await submitLandingEmail(trimmedEmail);
     setIsSubmitting(false);
     if (result.ok && result.resumeToken) {
       setResumeToken(result.resumeToken);
       setSubmitted(true);
+      captureEvent("early_access_signup_succeeded", { form_location: "hero" });
     } else if (result.ok) {
+      captureEvent("early_access_signup_failed", {
+        form_location: "hero",
+        failure_type: "resume_token",
+      });
       setError("We couldn't create your survey link. Please try again.");
+    } else {
+      captureEvent("early_access_signup_failed", {
+        form_location: "hero",
+        failure_type: result.errors?.email ? "validation" : "submission",
+      });
+      setError(result.errors?.email ?? result.message ?? "We couldn't save your email. Please try again.");
     }
-    else setError(result.errors?.email ?? result.message ?? "We couldn't save your email. Please try again.");
   }
 
   return (
@@ -144,6 +156,7 @@ export function HeroSignup() {
             >
               <Link
                 href={`/survey?resume=${encodeURIComponent(resumeToken)}&source=landing`}
+                onClick={() => captureEvent("survey_cta_clicked", { form_location: "hero" })}
                 className="flex h-full items-center gap-2.5 bg-surface-dark px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 ease-ui hover:bg-[color-mix(in_oklch,var(--color-surface-dark),white_8%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20"
               >
                 Help shape Miora
