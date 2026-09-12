@@ -1,72 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Miora
 
-## Getting Started
+Miora is self-maintaining project knowledge for AI agents. It keeps a user-owned filesystem of ordinary Markdown files aligned across local and cloud agents, so you spend less time re-explaining existing work.
 
-First, run the development server:
+The public site presents the product and collects early-access responses. It is built with Next.js App Router, React, TypeScript, Tailwind CSS, and shadcn/ui. PostHog provides a minimal anonymous acquisition funnel; Notion stores landing-page signups and survey responses.
+
+## Requirements
+
+- [Bun](https://bun.sh/) 1.3 or later (the repository pins Bun 1.3.14)
+- Node.js is supported by Next.js, but Bun is the repository's package manager
+- A Notion integration and data source for the early-access flow
+- A PostHog project if analytics are enabled
+
+## Local development
+
+Install dependencies and create a local environment file:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
+cp .env.example .env
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Fill in the values in `.env`, then start the development server:
 
-## Site URL (SEO)
-
-Canonical URLs, Open Graph links, `sitemap.xml`, `robots.txt`, JSON-LD, and
-`llms.txt` use the public site origin. Set this in production:
-
-```text
-NEXT_PUBLIC_SITE_URL=https://your-production-domain
+```bash
+bun run dev
 ```
 
-Without it, metadata falls back to `https://miora.invalid` at build time.
+Open [http://localhost:3000](http://localhost:3000). The main landing page is at `/`; the no-index early-access survey is at `/survey`.
 
-## Early access survey
+## Environment variables
 
-The landing signup and survey submit through Notion Server Actions. Configure these server-only variables in your deployment environment:
+`.env.example` contains the variables used by the application:
 
-```text
-NOTION_API_KEY=secret_...
-NOTION_DATA_SOURCE_ID=...
-SURVEY_RESUME_SECRET=use-a-long-random-secret
-```
+| Variable | Used for |
+| --- | --- |
+| `NOTION_API_KEY` | Server-only authentication for Notion API requests |
+| `NOTION_DATA_SOURCE_ID` | Notion data source receiving signups and survey responses |
+| `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` | Public PostHog project token for browser analytics |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog ingestion host, such as `https://us.i.posthog.com` |
+| `SURVEY_RESUME_SECRET` | Server-only secret used to sign survey resume tokens |
 
-The Notion data source must contain `Name` (title), `Email` (email), and the eight rich-text properties documented in [docs/miora-early-access-survey.md](docs/miora-early-access-survey.md). `SURVEY_RESUME_SECRET` must be stable across deployments; changing it invalidates existing survey links. Local tests do not make requests to Notion.
+Keep `NOTION_API_KEY` and `SURVEY_RESUME_SECRET` private. `SURVEY_RESUME_SECRET` must remain stable across deployments; changing it invalidates existing survey links. Resume tokens expire after 30 days. A missing, invalid, or expired token loads a blank survey, and raw `email` query parameters are not trusted.
 
-## Analytics
+The optional `NEXT_PUBLIC_SITE_URL` variable sets the canonical production origin used by metadata, Open Graph URLs, `sitemap.xml`, `robots.txt`, JSON-LD, and `llms.txt`. Without it, the application falls back to `https://miora.invalid` at build time.
 
-The site sends minimal anonymous funnel events to PostHog. Configure these
-production build variables in the hosting provider:
+## Notion setup
 
-```text
-NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=ph_project_...
-NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
-```
+Create a data source with the required `Name` (title) and `Email` (email) properties, plus the eight rich-text answer properties defined in [docs/miora-early-access-survey.md](docs/miora-early-access-survey.md). Share the data source with the Notion integration associated with `NOTION_API_KEY`.
 
-Enable cookieless tracking in the matching PostHog US project before deploying.
+The server validates and normalizes every response before writing it. Landing-page signups create or update the respondent's incomplete row; completed landing-origin rows are never overwritten. Direct survey submissions create a new row.
+
+## Analytics and privacy
+
+PostHog tracking is intentionally limited. The client uses cookieless tracking with in-memory persistence, disables autocapture and session recording, and never identifies visitors or creates person profiles. Events include only allowlisted attribution and funnel fields; they do not include names, email addresses, survey answers, Notion IDs, or resume tokens. Configure the matching PostHog project for cookieless tracking before production deployment.
+
 See [docs/analytics.md](docs/analytics.md) for the event and privacy contract.
 
-You can start editing the page by modifying `app/(site)/page.tsx`. The page auto-updates as you edit the file.
+## Project structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```text
+app/
+  (site)/       Landing page and early-access survey routes
+  _actions.ts   Server Actions for signup, resume loading, and survey submission
+components/     Shared UI and site components
+lib/site.ts     Site metadata, canonical URL, and SEO constants
+lib/early-access/
+                Survey validation, resume tokens, and Notion persistence
+docs/           Survey storage schema and analytics contract
+public/         Static assets and social preview images
+```
 
-## Learn More
+## Commands
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+bun run dev      # Start the development server
+bun run build    # Create a production build
+bun run start    # Serve the production build
+bun run lint     # Run ESLint
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Build the application with `bun run build` and run it with `bun run start`, or deploy it to a Next.js-compatible host such as [Vercel](https://vercel.com/). Define all five variables from `.env.example` in the hosting provider, and set `NEXT_PUBLIC_SITE_URL` to the public HTTPS origin for production SEO metadata.
 
-## Deploy on Vercel
+## Learn more
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js documentation](https://nextjs.org/docs)
+- [Next.js App Router](https://nextjs.org/docs/app)
+- [Bun documentation](https://bun.sh/docs)
+- [PostHog analytics contract](docs/analytics.md)
+- [Early-access survey schema](docs/miora-early-access-survey.md)
