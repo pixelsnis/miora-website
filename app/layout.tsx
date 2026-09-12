@@ -11,6 +11,16 @@ import { SiteHeader } from "./site-header";
 export const metadata: Metadata = {
   title: "Miora",
   description: "Miora aligns agents with project knowledge while you keep building.",
+  openGraph: {
+    images: [
+      {
+        url: "/images/og.webp",
+        width: 1200,
+        height: 630,
+        alt: "Miora",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
