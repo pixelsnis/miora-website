@@ -115,7 +115,7 @@ const organization = [
   { value: "A few canonical files", diagram: "README.md\nARCHITECTURE.md\nDECISIONS.md" },
   { value: "A documentation tree", diagram: "docs/\n├─ product/\n├─ architecture/\n└─ decisions/" },
   { value: "Knowledge near the thing it describes", diagram: "src/\n├─ payments/README.md\n└─ auth/NOTES.md" },
-  { value: "Organized primarily in an external tool", diagram: "Notion  ·  Linear  ·  Figma" },
+  { value: "Organized primarily in an external tool", diagram: "Notion\nLinear\nFigma" },
   { value: "Distributed across several places", diagram: "code ── docs ── issues\n  └── chats ── notes" },
   { value: "There isn't much structure", diagram: "file?  note?  chat?\n      ↓\n   search again" },
   { value: "Other", diagram: "your structure\n      ↓\n project knowledge" },
@@ -357,7 +357,7 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
               Name and email
             </h2>
             <FieldGroup>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-4">
               <Field data-invalid={Boolean(errors.name)}>
                 <FieldLabel htmlFor="survey-name">Name</FieldLabel>
                 <Input
@@ -819,7 +819,9 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
                 </AlertDescription>
               </Alert>
             ) : null}
-            <Button type="submit">Review answers</Button>
+            <Button type="submit" className="h-[44px]">
+              Review answers
+            </Button>
           </div>
         </form>
       </div>
