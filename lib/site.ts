@@ -1,16 +1,26 @@
-const DEFAULT_SITE_URL = "https://miora.invalid";
+const DEFAULT_SITE_URL = "https://miora.heiten.co";
+
+function parseSiteUrl(raw: string | undefined): URL | undefined {
+  if (!raw?.trim()) {
+    return undefined;
+  }
+
+  const value = raw.includes("://") ? raw : `https://${raw}`;
+
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return undefined;
+    }
+    return new URL(url.toString().replace(/\/+$/, ""));
+  } catch {
+    return undefined;
+  }
+}
 
 /** Canonical production origin for metadata, sitemap, robots, and JSON-LD. */
 export function getSiteUrl(): URL {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (!raw) {
-    return new URL(DEFAULT_SITE_URL);
-  }
-  try {
-    return new URL(raw.endsWith("/") ? raw.slice(0, -1) : raw);
-  } catch {
-    return new URL(DEFAULT_SITE_URL);
-  }
+  return parseSiteUrl(process.env.NEXT_PUBLIC_SITE_URL) ?? new URL(DEFAULT_SITE_URL);
 }
 
 export function absoluteUrl(path: string): string {
@@ -69,7 +79,7 @@ export const FEATURE_CARDS = [
 ] as const;
 
 export const OG_IMAGE = {
-  url: "/images/og.webp",
+  url: "/images/og.jpg",
   width: 1200,
   height: 630,
   alt: "Miora — self-maintaining knowledge for AI agents",

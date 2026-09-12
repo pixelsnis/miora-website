@@ -39,10 +39,11 @@ Open [http://localhost:3000](http://localhost:3000). The main landing page is at
 | `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` | Public PostHog project token for browser analytics |
 | `NEXT_PUBLIC_POSTHOG_HOST` | PostHog ingestion host, such as `https://us.i.posthog.com` |
 | `SURVEY_RESUME_SECRET` | Server-only secret used to sign survey resume tokens |
+| `NEXT_PUBLIC_SITE_URL` | Optional public HTTPS origin for canonical and social metadata |
 
 Keep `NOTION_API_KEY` and `SURVEY_RESUME_SECRET` private. `SURVEY_RESUME_SECRET` must remain stable across deployments; changing it invalidates existing survey links. Resume tokens expire after 30 days. A missing, invalid, or expired token loads a blank survey, and raw `email` query parameters are not trusted.
 
-The optional `NEXT_PUBLIC_SITE_URL` variable sets the canonical production origin used by metadata, Open Graph URLs, `sitemap.xml`, `robots.txt`, JSON-LD, and `llms.txt`. Without it, the application falls back to `https://miora.invalid` at build time.
+`NEXT_PUBLIC_SITE_URL` overrides the canonical URL used by metadata, Open Graph URLs, `sitemap.xml`, `robots.txt`, JSON-LD, and `llms.txt`. When it is unset or invalid, the application falls back to `https://miora.heiten.co`.
 
 ## Notion setup
 
@@ -81,7 +82,7 @@ bun run lint     # Run ESLint
 
 ## Deployment
 
-Build the application with `bun run build` and run it with `bun run start`, or deploy it to a Next.js-compatible host such as [Vercel](https://vercel.com/). Define all five variables from `.env.example` in the hosting provider, and set `NEXT_PUBLIC_SITE_URL` to the public HTTPS origin for production SEO metadata.
+Build the application with `bun run build` and run it with `bun run start`, or deploy to a Next.js-compatible host such as [Vercel](https://vercel.com/). Define the required variables from `.env.example` in the hosting provider; set `NEXT_PUBLIC_SITE_URL` when the public origin differs from the deployment URL.
 
 ## Learn more
 
