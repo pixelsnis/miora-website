@@ -14,9 +14,13 @@ function Slider({
   Pick<SliderPrimitive.Thumb.Props, "getAriaLabel" | "getAriaValueText">) {
   const _values = Array.isArray(value)
     ? value
-    : Array.isArray(defaultValue)
-      ? defaultValue
-      : [min, max]
+    : value != null
+      ? [value]
+      : Array.isArray(defaultValue)
+        ? defaultValue
+        : defaultValue != null
+          ? [defaultValue]
+          : [min, max]
 
   return (
     <SliderPrimitive.Root

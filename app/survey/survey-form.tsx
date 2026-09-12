@@ -43,6 +43,14 @@ const agents = [
   "Other",
 ] as const
 
+const workLocationStops = [
+  { value: 0, label: "All local" },
+  { value: 0.25, label: "Mostly local" },
+  { value: 0.5, label: "Balanced" },
+  { value: 0.75, label: "Mostly cloud" },
+  { value: 1, label: "All cloud" },
+] as const
+
 const workflows = [
   {
     value: "One continuous agent",
@@ -434,23 +442,49 @@ export default function SurveyForm({ initialEmail }: { initialEmail: string }) {
               <Slider
                 aria-label="Local to cloud work"
                 getAriaLabel={() => "Work location"}
-                getAriaValueText={(_, value) => `${Math.round(value * 100)} percent cloud`}
+                getAriaValueText={(_, value) => {
+                  const stop = workLocationStops.find((item) => item.value === value)
+                  return stop?.label ?? `${Math.round(value * 100)} percent cloud`
+                }}
                 min={0}
                 max={1}
-                step={0.01}
+                step={0.25}
                 value={state.workLocation}
                 onValueChange={(value) => {
-                  update("workLocation", Number(value))
+                  const next = Array.isArray(value) ? Number(value[0]) : Number(value)
+                  update("workLocation", next)
                   update("workLocationTouched", true)
                 }}
                 className="survey-large-slider"
               />
-              <div className="grid grid-cols-5 gap-2 text-center font-mono text-[11px] text-text-muted">
-                <span>All local</span>
-                <span>Mostly local</span>
-                <span>Balanced</span>
-                <span>Mostly cloud</span>
-                <span>All cloud</span>
+              <div className="relative h-8">
+                {workLocationStops.map((stop, index) => {
+                  const isFirst = index === 0
+                  const isLast = index === workLocationStops.length - 1
+                  return (
+                    <button
+                      key={stop.label}
+                      type="button"
+                      className={cn(
+                        "absolute top-0 font-mono text-[11px] text-text-muted hover:text-ink",
+                        isFirst && "left-0 text-left",
+                        isLast && "right-0 text-right",
+                        !isFirst && !isLast && "-translate-x-1/2 text-center"
+                      )}
+                      style={
+                        !isFirst && !isLast
+                          ? { left: `${stop.value * 100}%` }
+                          : undefined
+                      }
+                      onClick={() => {
+                        update("workLocation", stop.value)
+                        update("workLocationTouched", true)
+                      }}
+                    >
+                      {stop.label}
+                    </button>
+                  )
+                })}
               </div>
               <div className="flex flex-col gap-2 border-t border-line pt-4 text-xs leading-6 text-text-secondary sm:flex-row sm:justify-between sm:gap-6">
                 <span>
