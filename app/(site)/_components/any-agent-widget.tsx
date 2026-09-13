@@ -136,7 +136,7 @@ function KnowledgeFolderRow({ play }: { play: boolean }) {
     "flex items-center gap-2 bg-background px-4 py-3.5";
 
   return (
-    <div className="absolute left-1/2 top-1/2 z-20 w-[190pt] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[10px] bg-background font-mono text-[14px] text-ink shadow-widget">
+    <div className="absolute left-1/2 top-1/2 z-20 w-[190pt] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[10px] bg-background font-mono text-[16px] text-ink shadow-widget sm:text-[14px]">
       <WipeReplace
         ref={wipeRef}
         idleClassName={faceClassName}

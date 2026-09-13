@@ -8,7 +8,7 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-line bg-background text-ink">
       <div className="flex flex-col gap-8 px-4 py-8 sm:flex-row sm:items-end sm:justify-between sm:px-8 sm:py-10 lg:px-[72px]">
-        <p className="text-[22px] font-semibold leading-[1.12] tracking-[-0.03em]">
+        <p className="text-[24px] font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[22px]">
           Quiet infrastructure
           <br />
           for people who build with agents.
@@ -38,7 +38,7 @@ export function SiteFooter() {
         <FooterWordmark />
       </div>
       <div className="px-4 py-4 sm:px-8 lg:px-[72px]">
-        <p className="text-[12px] text-text-muted">© 2026 Miora</p>
+        <p className="text-xs text-text-muted">© 2026 Miora</p>
       </div>
     </footer>
   );

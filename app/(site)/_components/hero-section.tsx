@@ -10,7 +10,7 @@ export function HeroSection() {
       <div className="mb-4 w-full max-w-[480px]">
         <h1
           id="hero-heading"
-          className="hero-rise text-[28px] font-normal leading-[1.02] tracking-[-0.025em] text-ink sm:leading-none"
+          className="hero-rise text-[32px] font-normal leading-[1.02] tracking-[-0.025em] text-ink sm:text-[28px] sm:leading-none"
         >
           <strong className="font-semibold">Miora</strong> aligns agents with
           project knowledge while you keep building.

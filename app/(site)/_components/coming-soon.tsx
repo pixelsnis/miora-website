@@ -143,7 +143,7 @@ export function ComingSoon() {
                   aria-hidden
                 />
               </p>
-              <p className="w-full font-mono text-[12px] leading-[1.5] tracking-[-0.3px] text-text-muted">
+              <p className="w-full font-mono text-[14px] leading-[1.5] tracking-[-0.3px] text-text-muted sm:text-[12px]">
                 Coming soon.
               </p>
             </CursorFollowTarget>

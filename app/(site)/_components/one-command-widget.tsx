@@ -133,7 +133,7 @@ export function OneCommandWidget({ play }: { play: boolean }) {
         <span>miora init</span>
       </p>
       <div
-        className="mt-2 flex flex-col gap-px font-mono text-[10pt] leading-normal text-text-secondary"
+        className="mt-2 flex flex-col gap-px font-mono text-[14px] leading-normal text-text-secondary sm:text-[10pt]"
         aria-hidden="true"
       >
         <motion.p

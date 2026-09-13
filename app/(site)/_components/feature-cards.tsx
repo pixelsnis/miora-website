@@ -148,10 +148,10 @@ function FeatureCardItem({
       </div>
       <div className="flex flex-col items-start gap-2.5">
         <Icon size={24} className="size-6 text-ink" aria-hidden="true" />
-        <h3 className="text-[14px] font-semibold leading-[normal] tracking-[-0.35px] text-ink">
+        <h3 className="text-base font-semibold leading-[normal] tracking-[-0.35px] text-ink sm:text-sm">
           {card.title}
         </h3>
-        <p className="text-[12px] leading-[1.5] text-text-secondary">
+        <p className="text-sm leading-[1.5] text-text-secondary sm:text-xs">
           {card.description}
         </p>
       </div>
@@ -172,7 +172,7 @@ export function FeatureCards() {
         >
           {FEATURE_HEADING}
         </h2>
-        <p className="text-[14px] leading-[1.5] text-text-secondary">
+        <p className="text-base leading-[1.5] text-text-secondary sm:text-sm">
           {FEATURE_INTRO}
         </p>
       </Reveal>

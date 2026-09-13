@@ -8,20 +8,25 @@
 - **Monospace:** Geist Mono
   - Regular — 400
   - SemiBold — 600
-- **Base font size:** 14px
+- **Base font size:** 16px mobile / 14px desktop
 
 ### Type scale
 
-| Style | Font | Weight | Size | Line height | Letter spacing |
-|---|---|---:|---:|---:|---:|
-| **H1** | Aileron | 600 | 32px | 115% | -2.5% |
-| **H2** | Aileron | 600 | 24px | 120% | -2.5% |
-| **H3** | Aileron | 600 | 18px | 130% | -2.5% |
-| **H4** | Aileron | 600 | 14px | 140% | -2.5% |
-| **Paragraph** | Aileron | 400 | 14px | 155% | 0% |
-| **Caption** | Aileron | 400 | 11px | 140% | 0% |
-| **Mono** | Geist Mono | 400 | 13px | 150% | 0% |
-| **Mono emphasis** | Geist Mono | 600 | 13px | 150% | 0% |
+The desktop scale applies at the unchanged `sm` breakpoint (640px) and above.
+
+| Style | Font | Weight | Mobile size | Desktop size | Line height | Letter spacing |
+|---|---|---:|---:|---:|---:|---:|
+| **XS** | Aileron | 400 | 14px | 12px | 20px / 16px | 0% |
+| **SM** | Aileron | 400 | 16px | 14px | 24px / 20px | 0% |
+| **Base** | Aileron | 400 | 16px | 14px | 155% | 0% |
+| **H1** | Aileron | 600 | 32px | 32px | 115% | -2.5% |
+| **H2** | Aileron | 600 | 24px | 24px | 120% | -2.5% |
+| **H3** | Aileron | 600 | 20px | 18px | 130% | -2.5% |
+| **H4** | Aileron | 600 | 16px | 14px | 140% | -2.5% |
+| **Paragraph** | Aileron | 400 | 16px | 14px | 155% | 0% |
+| **Caption** | Aileron | 400 | 13px | 11px | 140% | 0% |
+| **Mono** | Geist Mono | 400 | 15px | 13px | 150% | 0% |
+| **Mono emphasis** | Geist Mono | 600 | 15px | 13px | 150% | 0% |
 
 Use headings sparingly. The visual hierarchy should come as much from whitespace and composition as from type size.
 

@@ -343,7 +343,7 @@ export default function SurveyForm({
     return (
       <main className="bg-background text-ink">
         <div className="mx-auto flex w-full max-w-[720px] flex-col gap-4 px-4 pb-20 pt-20 sm:px-6">
-          <h1 className="text-balance text-[36px] font-normal leading-[1.08] tracking-[-0.025em] text-ink sm:text-[40px]">
+          <h1 className="text-balance text-[32px] font-normal leading-[1.08] tracking-[-0.025em] text-ink">
             Thanks for helping shape Miora.
           </h1>
           <p className="max-w-[60ch] text-pretty text-sm leading-6 text-text-secondary">
@@ -358,7 +358,7 @@ export default function SurveyForm({
     <main className="bg-background text-ink">
       <div className="mx-auto flex w-full max-w-[720px] flex-col gap-12 px-4 pb-20 pt-12 sm:px-6">
         <header>
-          <h1 className="text-balance text-[36px] font-normal leading-[1.08] tracking-[-0.025em] text-ink sm:text-[40px]">
+          <h1 className="text-balance text-[32px] font-normal leading-[1.08] tracking-[-0.025em] text-ink">
             Help us understand how projects remember.
           </h1>
           <p className="mt-3 max-w-[60ch] text-pretty text-sm leading-6 text-text-secondary">
@@ -488,7 +488,7 @@ export default function SurveyForm({
                       key={stop.label}
                       type="button"
                       className={cn(
-                        "absolute top-0 font-mono text-[11px] text-text-muted hover:text-ink",
+                        "absolute top-0 font-mono text-caption text-text-muted hover:text-ink",
                         isFirst && "left-0 text-left",
                         isLast && "right-0 text-right",
                         !isFirst && !isLast && "-translate-x-1/2 text-center"
@@ -573,7 +573,7 @@ export default function SurveyForm({
                   )
                 })}
               </div>
-              <div className="flex items-center justify-between gap-4 font-mono text-[11px] tabular-nums text-text-muted">
+              <div className="flex items-center justify-between gap-4 font-mono text-caption tabular-nums text-text-muted">
                 <span>{state.workflow.length} of 3 selected</span>
                 {workflowNotice ? (
                   <span className="text-destructive">You can select up to three.</span>
@@ -596,7 +596,7 @@ export default function SurveyForm({
               <div className="grid gap-8 sm:grid-cols-2">
               {knowledgeGroups.map((group) => (
                 <div key={group.title} className="flex flex-col gap-3">
-                  <h3 className="font-mono text-[11px] text-text-muted">{group.title}</h3>
+                  <h3 className="font-mono text-caption text-text-muted">{group.title}</h3>
                   {group.options.map((option) => {
                     const optionId = `knowledge-${option.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`
                     return (
@@ -681,7 +681,7 @@ export default function SurveyForm({
                   )
                 })}
               </div>
-              <div className="flex items-center justify-between gap-4 font-mono text-[11px] tabular-nums text-text-muted">
+              <div className="flex items-center justify-between gap-4 font-mono text-caption tabular-nums text-text-muted">
                 <span>{state.knowledgeOrganization.length} of 3 selected</span>
                 {organizationNotice ? (
                   <span className="text-destructive">You can select up to three.</span>
@@ -731,7 +731,7 @@ export default function SurveyForm({
                   </ToggleGroupItem>
                 ))}
               </ToggleGroup>
-              <div className="flex items-center justify-between gap-4 font-mono text-[11px] tabular-nums text-text-muted">
+              <div className="flex items-center justify-between gap-4 font-mono text-caption tabular-nums text-text-muted">
                 <span>{state.preservedKnowledge.length} of 5 selected</span>
                 {preservedNotice ? (
                   <span className="text-destructive">You can select up to five.</span>
@@ -786,7 +786,7 @@ export default function SurveyForm({
                 }}
                 className="survey-large-slider mt-4"
               />
-              <div className="flex justify-between font-mono text-[11px] text-text-muted">
+              <div className="flex justify-between font-mono text-caption text-text-muted">
                 <span>0%</span>
                 <span>100%</span>
               </div>

@@ -143,7 +143,7 @@ export function MarkdownWidget({ play }: { play: boolean }) {
         {tabs.map((name, index) => (
           <span
             key={name}
-            className={`min-w-0 flex-1 truncate px-1.5 py-2 text-center font-mono text-[10px] leading-none ${
+            className={`min-w-0 flex-1 truncate px-1.5 py-2 text-center font-mono text-[12px] leading-none sm:text-[10px] ${
               index === 0 ? "font-semibold text-ink" : "text-text-muted"
             }`}
           >
@@ -153,7 +153,7 @@ export function MarkdownWidget({ play }: { play: boolean }) {
       </div>
 
       <div className="relative h-[138pt]">
-        <div className="flex flex-col gap-3 px-4 py-3 font-mono text-[12px] text-text-muted">
+        <div className="flex flex-col gap-3 px-4 py-3 font-mono text-[14px] text-text-muted sm:text-[12px]">
           {sections.map((section) => (
             <div key={section.id} className="flex flex-col gap-2">
               <div className="flex items-center gap-2">

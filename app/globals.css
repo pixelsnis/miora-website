@@ -37,27 +37,31 @@
   --duration-hero: 800ms;
 
 
-  --text-base: 0.875rem;
-  --text-base--line-height: 1.55;
-  --text-h1: 2rem;
+  --text-xs: var(--type-size-xs);
+  --text-xs--line-height: var(--type-line-height-xs);
+  --text-sm: var(--type-size-sm);
+  --text-sm--line-height: var(--type-line-height-sm);
+  --text-base: var(--type-size-base);
+  --text-base--line-height: var(--type-line-height-base);
+  --text-h1: var(--type-size-h1);
   --text-h1--line-height: 1.15;
   --text-h1--letter-spacing: -0.025em;
-  --text-h2: 1.5rem;
+  --text-h2: var(--type-size-h2);
   --text-h2--line-height: 1.2;
   --text-h2--letter-spacing: -0.025em;
-  --text-h3: 1.125rem;
+  --text-h3: var(--type-size-h3);
   --text-h3--line-height: 1.3;
   --text-h3--letter-spacing: -0.025em;
-  --text-h4: 0.875rem;
+  --text-h4: var(--type-size-h4);
   --text-h4--line-height: 1.4;
   --text-h4--letter-spacing: -0.025em;
-  --text-body: 0.875rem;
+  --text-body: var(--type-size-body);
   --text-body--line-height: 1.55;
-  --text-caption: 0.6875rem;
+  --text-caption: var(--type-size-caption);
   --text-caption--line-height: 1.4;
-  --text-mono: 0.8125rem;
+  --text-mono: var(--type-size-mono);
   --text-mono--line-height: 1.5;
-  --text-mono-emphasis: 0.8125rem;
+  --text-mono-emphasis: var(--type-size-mono-emphasis);
   --text-mono-emphasis--line-height: 1.5;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -132,6 +136,20 @@
 }
 
 :root {
+  --type-size-xs: 0.75rem;
+  --type-line-height-xs: 1rem;
+  --type-size-sm: 0.875rem;
+  --type-line-height-sm: 1.25rem;
+  --type-size-base: 0.875rem;
+  --type-line-height-base: 1.55;
+  --type-size-h1: 2rem;
+  --type-size-h2: 1.5rem;
+  --type-size-h3: 1.125rem;
+  --type-size-h4: 0.875rem;
+  --type-size-body: 0.875rem;
+  --type-size-caption: 0.6875rem;
+  --type-size-mono: 0.8125rem;
+  --type-size-mono-emphasis: 0.8125rem;
   /* shadcn semantic aliases mapped to the existing Miora palette */
   --background: var(--color-background);
   --foreground: var(--color-ink);
@@ -165,6 +183,23 @@
   --sidebar-accent-foreground: var(--color-text);
   --sidebar-border: var(--color-line);
   --sidebar-ring: var(--color-moss);
+}
+@media (max-width: 639px) {
+  :root {
+    --type-size-xs: 0.875rem;
+    --type-line-height-xs: 1.25rem;
+    --type-size-sm: 1rem;
+    --type-line-height-sm: 1.5rem;
+    --type-size-base: 1rem;
+    --type-size-h1: 2rem;
+    --type-size-h2: 1.5rem;
+    --type-size-h3: 1.25rem;
+    --type-size-h4: 1rem;
+    --type-size-body: 1rem;
+    --type-size-caption: 0.8125rem;
+    --type-size-mono: 0.9375rem;
+    --type-size-mono-emphasis: 0.9375rem;
+  }
 }
 
 
@@ -200,22 +235,6 @@
   white-space: normal;
 }
 
-.survey-choice-card:hover,
-.survey-choice-card:has(:focus-visible) {
-  border-color: var(--color-ink);
-}
-
-.survey-choice-card.is-selected,
-.survey-choice-card[data-pressed="true"] {
-  border-color: var(--color-ink);
-  background: var(--color-surface-2);
-}
-
-.survey-choice-card [data-slot="radio-group-item"],
-.survey-choice-card [data-slot="checkbox"] {
-  margin-top: 0.15rem;
-}
-
 .survey-choice-card p {
   margin: 0;
 }
@@ -228,7 +247,7 @@
   overflow: hidden;
   color: var(--color-text-muted);
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: var(--type-size-caption);
   font-weight: 400;
   line-height: 1.45;
   text-align: left;
@@ -245,7 +264,7 @@
   border: 1px solid var(--color-line);
   color: var(--color-text-muted);
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: var(--type-size-caption);
 }
 
 .survey-large-slider {
