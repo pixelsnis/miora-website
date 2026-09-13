@@ -3,7 +3,7 @@ import { ComingSoon } from "./_components/coming-soon";
 import { FeatureCards } from "./_components/feature-cards";
 import { HeroSection } from "./_components/hero-section";
 import { HomeStructuredData } from "./_components/home-structured-data";
-import { OG_IMAGE, SITE_DESCRIPTION, SITE_TITLE } from "@/lib/site";
+import { OG_IMAGE, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE } from "@/lib/site";
 
 export const metadata: Metadata = {
   alternates: {
@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     url: "/",
+    siteName: SITE_NAME,
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     images: [OG_IMAGE],
