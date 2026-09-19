@@ -549,7 +549,7 @@ export function HeroIllustration() {
         <CursorFollowTarget className="overflow-hidden rounded-[10px] bg-background pt-0.5 shadow-widget">
           <div className="flex items-center gap-1.5 p-2 font-mono text-sm text-ink">
             <Folder size={21} className={iconClassName} aria-hidden="true" />
-            <span>knowledge/</span>
+            <span>docs/</span>
           </div>
           <div className="pl-3.5">
             {rows.map((row) => (

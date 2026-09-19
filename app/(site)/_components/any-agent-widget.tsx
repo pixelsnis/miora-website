@@ -56,7 +56,7 @@ const HOLD_MS = 2000;
 const idleFace = {
   id: "idle",
   kind: "folder",
-  label: "knowledge/",
+  label: "docs/",
 } as const;
 
 const statusFaces = [
